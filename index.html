@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刚好五个字 - 个人博客</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+        body{min-height:100vh;background:linear-gradient(145deg, #141E30, #243B55);background-size:cover;background-repeat:no-repeat;background-attachment:fixed;background-position:center;}
+        #current-time{text-align:center;color:#ffffff;font-weight:bold;padding:15px 0;font-size:18px;background:rgba(0,0,0,0.5);border-bottom:1px solid #333;}
+        .header{text-align:center;padding:30px;color:#fff;text-shadow:0 0 10px #000;}
+        .header h1{font-size:32px;margin-bottom:10px;}
+        .nav{text-align:center;margin:20px 0;}
+        .nav a{color:#fff;margin:0 15px;text-decoration:none;font-size:18px;padding:8px 15px;border-radius:5px;background:rgba(0,0,0,0.3);}
+        .nav a:hover{background:rgba(0,0,0,0.5);}
+        .article-list{max-width:1000px;margin:0 auto;padding:20px;}
+        .post-card{background:rgba(255,255,255,0.9);border-radius:8px;padding:20px;margin-bottom:20px;box-shadow:0 0 10px rgba(0,0,0,0.2);}
+        .post-title{font-size:22px;margin-bottom:10px;}
+        .post-title a{color:#2c3e50;text-decoration:none;}
+        .post-meta{color:#7f8c8d;font-size:14px;margin-bottom:10px;}
+        .post-excerpt{color:#34495e;line-height:1.6;margin-bottom:15px;}
+        .post-read{color:#3498db;text-decoration:none;padding:6px 12px;border:1px solid #3498db;border-radius:4px;font-size:14px;}
+        .post-read:hover{background:#3498db;color:#fff;}
+        .top-tag{color:#e74c3c;margin-right:5px;}
+        .footer{text-align:center;padding:20px;color:#fff;text-shadow:0 0 8px #000;margin-top:50px;}
+    </style>
+</head>
+<body>
+    <!-- 恢复时间显示 -->
+    <div id="current-time"></div>
+    <div class="header">
+        <h1>刚好五个字</h1>
+        <p>记录生活与感悟</p>
+    </div>
+    <div class="nav">
+        <a href="./index.html">首页</a>
+        <!-- 关于我改为独立页面，不弹窗口 -->
+        <a href="./about.html">关于我</a>
+        <a href="./login.html">管理后台</a>
+    </div>
+    <div class="article-list"></div>
+    <div class="footer">© 2026 刚好五个字 版权所有</div>
+
+    <script src="./js/main.js"></script>
+</body>
+</html>

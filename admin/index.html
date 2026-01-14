@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刚好五个字 - 管理后台</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+        body{background:linear-gradient(145deg, #141E30, #243B55);color:#333;}
+        .top{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(0,0,0,0.8);color:#fff;height:46px;}
+        .top a{color:#fff;text-decoration:none;font-size:16px;}
+        .top a:hover{color:#3498db;}
+        .top .title{font-size:18px;font-weight:bold;}
+        .container{display:flex;height:calc(100vh - 46px);}
+        .left{width:200px;background:rgba(0,0,0,0.7);padding:20px 0;}
+        .left a{display:block;width:100%;padding:12px 0;text-align:center;color:#fff;text-decoration:none;margin-bottom:8px;border-radius:4px;}
+        .left a:hover,.left a.active{background:#3498db;}
+        .right{flex:1;padding:20px;overflow:auto;}
+        .panel{background:rgba(255,255,255,0.95);border-radius:8px;padding:25px;margin-bottom:20px;display:none;}
+        .panel.active{display:block;}
+        .panel h3{font-size:20px;color:#2c3e50;padding-bottom:10px;border-bottom:1px solid #eee;margin-bottom:20px;}
+        input,textarea{width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:6px;font-size:16px;margin-bottom:10px;}
+        textarea{min-height:250px;resize:none;line-height:1.6;}
+        button{padding:8px 12px;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:15px;margin-right:8px;margin-bottom:8px;}
+        .btn-save{background:#2ecc71;}
+        .btn-reset{background:#e74c3c;}
+        .btn-backup{background:#2c3e50;margin-top:10px;}
+        .btn-import{background:#e67e22;margin-top:10px;}
+        /* 编辑器工具栏 */
+        .editor-tool{margin-bottom:10px;padding:10px;background:#f5f5f5;border-radius:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+        .tool-btn{background:#3498db;}
+        .tool-select{padding:6px 10px;border:1px solid #ddd;border-radius:4px;font-size:14px;}
+        /* 勾选框紧凑布局 */
+        .opt{margin:15px 0;display:flex;gap:20px;align-items:center;}
+        .opt label{color:#666;display:flex;align-items:center;gap:5px;cursor:pointer;}
+        .opt input{width:auto;margin:0;}
+        table{width:100%;border-collapse:collapse;margin-top:10px;}
+        th,td{padding:12px;text-align:left;border-bottom:1px solid #eee;}
+        th{background:#f8f8f8;color:#666;}
+        .btn-edit{background:#3498db;padding:5px 10px;border-radius:4px;border:none;color:#fff;cursor:pointer;margin-right:5px;}
+        .btn-del{background:#e74c3c;padding:5px 10px;border-radius:4px;border:none;color:#fff;cursor:pointer;}
+        .color-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+        .color-item{width:50px;height:30px;border-radius:4px;margin:2px;cursor:pointer;border:2px solid transparent;}
+        .color-item.active{border-color:#e74c3c;}
+        .tips{margin-top:10px;height:22px;line-height:22px;font-size:14px;}
+        .success{color:#2ecc71;}
+        .error{color:#e74c3c;}
+        .backup-box{margin-top:20px;padding-top:20px;border-top:1px dashed #eee;}
+        #import-file{display:none;}
+        .status-public{color:#2ecc71;}
+        .status-private{color:#e74c3c;}
+        /* ✅ 核心重做：仿HALO原版代码块样式 + 一键复制按钮 */
+        pre {
+            position: relative;
+            background: #1e1e1e;
+            color: #dcdcdc;
+            padding: 18px 15px 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        pre code {color: #dcdcdc;}
+        /* 代码高亮配色（HALO同款） */
+        pre code .hljs-keyword {color: #569cd6;}
+        pre code .hljs-string {color: #ce9178;}
+        pre code .hljs-comment {color: #6a9955;}
+        pre code .hljs-number {color: #b5cea8;}
+        pre code .hljs-function {color: #dcdcaa;}
+        pre code .hljs-var {color: #9cdcfe;}
+        /* ✅ 一键复制按钮 - 悬浮显示，HALO原版位置 */
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            margin:0;
+        }
+        pre:hover .copy-btn {opacity: 1;}
+        .copy-btn:hover {background: #2980b9;}
+        /* 复制成功/失败提示 */
+        .copy-tip {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 6px;
+            color: #fff;
+            font-size:14px;
+            z-index:9999;
+            display:none;
+        }
+        .copy-success {background: #2ecc71;}
+        .copy-error {background: #e74c3c;}
+    </style>
+</head>
+<body>
+    <div class="top">
+        <a href="../">🏠 返回博客首页</a>
+        <div class="title">博客管理后台</div>
+        <div id="time"></div>
+    </div>
+    <!-- 复制提示弹窗 -->
+    <div class="copy-tip copy-success" id="copy-success">✅ 复制成功！</div>
+    <div class="copy-tip copy-error" id="copy-error">❌ 复制失败，请手动复制</div>
+
+    <div class="container">
+        <div class="left">
+            <a href="javascript:;" class="active" data-panel="write">发布文章</a>
+            <a href="javascript:;" data-panel="list">文章管理</a>
+            <a href="javascript:;" data-panel="color">背景配色</a>
+            <a href="javascript:;" data-panel="about">关于我编辑</a>
+            <a href="javascript:;" data-panel="pwd">修改密码</a>
+            <a href="javascript:;" onclick="blog.logout()">退出登录</a>
+        </div>
+        <div class="right">
+            <div class="panel active" id="write">
+                <h3>发布新文章</h3>
+                <input type="text" id="art-title" placeholder="请输入文章标题">
+                <div class="editor-tool">
+                    <button class="tool-btn" onclick="blog.setTextBold()">加粗</button>
+                    <button class="tool-btn" onclick="blog.setTextItalic()">斜体</button>
+                    <select class="tool-select" id="font-size" onchange="blog.setFontSize(this.value)">
+                        <option value="">字体大小</option>
+                        <option value="12px">小</option>
+                        <option value="16px">默认</option>
+                        <option value="20px">大</option>
+                        <option value="24px">超大</option>
+                    </select>
+                    <select class="tool-select" id="font-color" onchange="blog.setFontColor(this.value)">
+                        <option value="">字体颜色</option>
+                        <option value="#333">黑色</option>
+                        <option value="#e74c3c">红色</option>
+                        <option value="#3498db">蓝色</option>
+                        <option value="#2ecc71">绿色</option>
+                        <option value="#f39c12">黄色</option>
+                    </select>
+                    <button class="tool-btn" onclick="blog.insertCode()">代码块</button>
+                    <button class="tool-btn" onclick="blog.insertLink()">添加链接</button>
+                    <button class="tool-btn" onclick="blog.insertImage()">插入图片</button>
+                </div>
+                <textarea id="art-content" placeholder="请输入文章内容，支持富文本/代码块编辑"></textarea>
+                <div class="opt">
+                    <label><input type="checkbox" id="art-top"> 置顶文章</label>
+                    <label><input type="checkbox" id="art-private"> 私密文章</label>
+                </div>
+                <button class="btn-save" onclick="blog.saveArt()">保存发布</button>
+                <button class="btn-reset" onclick="blog.clearArt()">清空内容</button>
+            </div>
+            <div class="panel" id="list">
+                <h3>文章列表</h3>
+                <table><thead><tr><th>标题</th><th>状态</th><th>发布时间</th><th>操作</th></tr></thead><tbody id="art-list"></tbody></table>
+            </div>
+            <div class="panel" id="color">
+                <h3>博客背景配色</h3>
+                <p style="color:#666;margin-bottom:10px;">点击选择，实时生效并保存</p>
+                <div class="color-list" id="color-list"></div>
+            </div>
+            <div class="panel" id="about">
+                <h3>编辑「关于我」内容</h3>
+                <textarea id="about-text" placeholder="请输入你的个人介绍"></textarea>
+                <button class="btn-save" onclick="blog.saveAbout()">保存修改</button>
+                <div class="tips success" id="about-tips"></div>
+            </div>
+            <div class="panel" id="pwd">
+                <h3>修改管理员密码</h3>
+                <input type="password" id="old-pwd" placeholder="请输入原密码">
+                <input type="password" id="new-pwd" placeholder="请输入新密码（至少6位）">
+                <input type="password" id="new-pwd2" placeholder="请确认新密码">
+                <button class="btn-save" onclick="blog.savePwd()">确认修改</button>
+                <div class="tips" id="pwd-tips"></div>
+                <div class="backup-box">
+                    <h4>数据备份/恢复（重要）</h4>
+                    <button class="btn-backup" onclick="blog.exportData()">📤 导出所有数据备份</button>
+                    <button class="btn-import" onclick="document.getElementById('import-file').click()">📥 导入备份恢复数据</button>
+                    <input type="file" id="import-file" accept=".json" onchange="blog.importData(event)">
+                    <p style="color:#666;font-size:13px;margin-top:10px;">提示：清除浏览器缓存前，务必先导出备份！</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/main.js"></script>
+</body>
+</html>

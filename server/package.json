@@ -1,0 +1,16 @@
+{
+    "name": "blog-server",
+    "version": "1.0.0",
+    "description": "个人博客后端服务（NAS 持久化存储）",
+    "main": "app.js",
+    "dependencies": {
+        "express": "^4.18.2",
+        "cors": "^2.8.5"
+    },
+    "scripts": {
+        "start": "node app.js",
+        "pm2-start": "pm2 start app.js --name blog-server",
+        "pm2-stop": "pm2 stop blog-server",
+        "pm2-restart": "pm2 restart blog-server"
+    }
+}

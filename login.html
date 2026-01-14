@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录 - 刚好五个字</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+        body{min-height:100vh;background:linear-gradient(145deg, #141E30, #243B55);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+        .login-box{background:rgba(255,255,255,0.95);padding:40px 30px;border-radius:10px;width:90%;max-width:400px;}
+        .login-box h2{text-align:center;color:#2c3e50;margin-bottom:30px;font-size:26px;}
+        .login-box input{width:100%;padding:12px 15px;margin-bottom:20px;border:1px solid #e0e0e0;border-radius:6px;font-size:16px;}
+        #login-btn{width:100%;padding:12px;background:#3498db;color:#fff;border:none;border-radius:6px;font-size:16px;cursor:pointer;}
+        #login-btn:hover{background:#2980b9;}
+        #tips{color:#e74c3c;text-align:center;height:20px;margin-bottom:10px;}
+        .back{text-align:center;margin-top:20px;}
+        .back a{color:#3498db;text-decoration:none;font-size:14px;}
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>管理员登录</h2>
+        <input type="password" id="pwd" placeholder="请输入管理员密码">
+        <div id="tips"></div>
+        <button id="login-btn" onclick="login()">立即登录</button>
+        <div class="back"><a href="./">← 返回博客首页</a></div>
+    </div>
+    <script>
+        // 修复密码验证逻辑：读取localStorage的密码，修改后生效
+        function login(){
+            const inputPwd = document.getElementById('pwd').value.trim();
+            // 优先读取修改后的密码，无则用默认
+            const savedPwd = localStorage.getItem('blog_pwd') || "abc789..";
+            if(inputPwd === savedPwd){
+                localStorage.setItem('blog_admin', 'true');
+                window.location.href = './admin/';
+            }else{
+                document.getElementById('tips').innerText = '密码错误！';
+            }
+        }
+    </script>
+</body>
+</html>

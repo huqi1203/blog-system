@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章详情 - 刚好五个字</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+        body{min-height:100vh;background:linear-gradient(145deg, #141E30, #243B55);background-size:cover;background-repeat:no-repeat;background-attachment:fixed;color:#fff;}
+        #current-time{text-align:center;color:#ffffff;font-weight:bold;padding:15px 0;font-size:18px;background:rgba(0,0,0,0.5);border-bottom:1px solid #333;}
+        .container{max-width:1000px;margin:30px auto;padding:0 20px;}
+        .article-header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.2);}
+        .article-header h1{font-size:28px;margin-bottom:15px;}
+        .article-meta{color:#ccc;font-size:16px;}
+        .article-content{background:rgba(255,255,255,0.95);color:#333;padding:30px;border-radius:8px;line-height:2;font-size:17px;margin-bottom:30px;}
+        .article-content img{max-width:100%;border-radius:6px;margin:15px 0;}
+        .article-content a{color:#3498db;text-decoration:none;}
+        .article-content a:hover{text-decoration:underline;}
+        .article-content b{font-weight:bold;color:#2c3e50;}
+        .article-content i{font-style:italic;color:#666;}
+        .back-btn{display:block;width:120px;margin:0 auto;padding:10px;text-align:center;background:#3498db;color:#fff;text-decoration:none;border-radius:5px;font-size:16px;}
+        .back-btn:hover{background:#2980b9;}
+        .like-box{text-align:center;margin:30px 0;}
+        .like-btn{background:#e74c3c;border:none;color:#fff;padding:10px 20px;border-radius:5px;font-size:16px;cursor:pointer;margin-right:10px;}
+        .like-btn:hover{background:#c0392b;}
+        .comment-box{background:rgba(255,255,255,0.95);padding:30px;border-radius:8px;margin-top:30px;}
+        .comment-box h3{color:#2c3e50;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #eee;}
+        .comment-input input,.comment-input textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;margin-bottom:10px;font-size:16px;}
+        .comment-input textarea{min-height:100px;resize:none;}
+        .comment-btn{background:#3498db;border:none;color:#fff;padding:8px 20px;border-radius:5px;cursor:pointer;}
+        .comment-list{margin-top:20px;}
+        .comment-item{padding:15px;border-bottom:1px solid #eee;}
+        .comment-name{font-weight:bold;color:#2c3e50;margin-bottom:5px;}
+        .comment-time{color:#999;font-size:12px;margin-bottom:8px;}
+        .comment-text{color:#333;line-height:1.6;}
+        /* ✅ ✅ ✅ 强化代码块样式：代码不换行、不溢出、完美居中在黑色框内 */
+        pre {
+            position: relative !important;
+            background: #1e1e1e !important;
+            color: #dcdcdc !important;
+            padding: 20px !important;
+            border-radius: 8px !important;
+            margin: 20px 0 !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            font-family: Consolas, Monaco, 'JetBrains Mono', monospace !important;
+            font-size: 14px !important;
+            line-height: 1.7 !important;
+            white-space: pre !important;
+            word-wrap: normal !important;
+            word-break: normal !important;
+        }
+        pre code {
+            color: #dcdcdc !important;
+            display: block !important;
+            width: 100% !important;
+        }
+        /* 代码高亮配色，和Halo完全一致 */
+        pre code .hljs-keyword {color: #569cd6 !important;}
+        pre code .hljs-string {color: #ce9178 !important;}
+        pre code .hljs-comment {color: #6a9955 !important;}
+        pre code .hljs-number {color: #b5cea8 !important;}
+        pre code .hljs-function {color: #dcdcaa !important;}
+        /* 复制按钮强制显示 */
+        .copy-btn {
+            position: absolute !important;
+            top: 8px !important;
+            right: 8px !important;
+background: #3498db !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 4px !important;
+            padding: 4px 8px !important;
+            font-size: 12px !important;
+            cursor: pointer !important;
+            opacity: 0 !important;
+            transition: opacity 0.3s !important;
+            z-index: 99 !important;
+        }
+        pre:hover .copy-btn {opacity: 1 !important;}
+        .copy-btn:hover {background: #2980b9 !important;}
+        /* 复制提示弹窗 */
+        .copy-tip {
+            position: fixed !important;
+            top: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            padding: 10px 20px !important;
+            border-radius: 6px !important;
+            color: #fff !important;
+            font-size:14px !important;
+            z-index:9999 !important;
+            display:none !important;
+        }
+        .copy-success {background: #2ecc71 !important;}
+        .copy-error {background: #e74c3c !important;}
+    </style>
+</head>
+<body>
+    <div id="current-time"></div>
+    <div class="container">
+        <div class="article-header">
+            <h1 id="art-title"></h1>
+            <div class="article-meta" id="art-meta"></div>
+        </div>
+        <div class="article-content" id="art-content"></div>
+        <div class="like-box">
+            <button class="like-btn" onclick="articleLike()">❤️ 点赞这篇文章 <span id="like-count">0</span></button>
+        </div>
+        <div class="comment-box">
+            <h3>评论区</h3>
+            <div class="comment-input">
+                <input type="text" id="comment-name" placeholder="请输入你的昵称">
+                <textarea id="comment-content" placeholder="写下你的看法..."></textarea>
+                <button class="comment-btn" onclick="submitComment()">提交评论</button>
+            </div>
+            <div class="comment-list" id="comment-list"></div>
+        </div>
+        <a href="./index.html" class="back-btn">← 返回博客首页</a>
+    </div>
+    <div class="copy-tip copy-success" id="copy-success">✅ 复制成功！</div>
+    <div class="copy-tip copy-error" id="copy-error">❌ 复制失败，请手动复制</div>
+    <script src="./js/main.js"></script>
+</body>
+</html>
