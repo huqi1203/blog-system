@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 博客系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-800 text-white flex-shrink-0">
+            <div class="p-6 border-b border-gray-700">
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fas fa-cog"></i> 管理后台
+                </h1>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="index.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
+                    <i class="fas fa-tachometer-alt"></i> 仪表盘
+                </a>
+                <a href="articles.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
+                    <i class="fas fa-file-alt"></i> 文章管理
+                </a>
+                <a href="comments.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
+                    <i class="fas fa-comments"></i> 评论管理
+                </a>
+                <a href="categories.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
+                    <i class="fas fa-folder"></i> 分类管理
+                </a>
+                <a href="settings.html" class="block px-4 py-3 bg-blue-600 rounded-lg flex items-center gap-3">
+                    <i class="fas fa-cog"></i> 系统设置
+                </a>
+            </nav>
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+                <button onclick="logout()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg flex items-center justify-center gap-2 transition">
+                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-auto">
+            <header class="bg-white shadow-sm px-8 py-4">
+                <h2 class="text-2xl font-bold text-gray-800">系统设置</h2>
+            </header>
+
+            <div class="p-8">
+                <div class="bg-white rounded-2xl shadow-md p-6 max-w-2xl">
+                    <form id="settingsForm" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">网站名称</label>
+                            <input type="text" id="siteName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">网站描述</label>
+                            <input type="text" id="siteDescription" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">关于页面内容</label>
+                            <textarea id="about" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">页脚文字</label>
+                            <input type="text" id="footer" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">开启评论</label>
+                                <p class="text-sm text-gray-500">允许访客发表评论</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="allowComments" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">评论需审核</label>
+                                <p class="text-sm text-gray-500">评论需要管理员审核后显示</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="requireApproval" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">主题</label>
+                                <p class="text-sm text-gray-500">网站主题颜色</p>
+                            </div>
+                            <select id="theme" class="px-4 py-2 border rounded-lg">
+                                <option value="light">浅色</option>
+                                <option value="dark">深色</option>
+                                <option value="auto">自动</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i> 保存设置
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Change Password -->
+                <div class="bg-white rounded-2xl shadow-md p-6 max-w-2xl mt-6">
+                    <h3 class="text-lg font-bold mb-4">修改密码</h3>
+                    <form id="passwordForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">当前密码</label>
+                            <input type="password" id="currentPwd" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">新密码</label>
+                            <input type="password" id="newPwd" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">确认新密码</label>
+                            <input type="password" id="confirmPwd" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <button type="submit" class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
+                            修改密码
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = '../api.php';
+        const token = localStorage.getItem('blog_token');
+        if (!token) window.location.href = 'login.html';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+        });
+
+        async function loadSettings() {
+            try {
+                const res = await fetch(`${API_URL}?action=get_config`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.code === 200) {
+                    const cfg = data.data;
+                    document.getElementById('siteName').value = cfg.siteName || '';
+                    document.getElementById('siteDescription').value = cfg.siteDescription || '';
+                    document.getElementById('about').value = cfg.about || '';
+                    document.getElementById('footer').value = cfg.footer || '';
+                    document.getElementById('allowComments').checked = cfg.allowComments !== false;
+                    document.getElementById('requireApproval').checked = cfg.requireApproval === true;
+                    document.getElementById('theme').value = cfg.theme || 'light';
+                }
+            } catch (e) {
+                console.error('Failed to load settings:', e);
+            }
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const cfg = {
+                siteName: document.getElementById('siteName').value,
+                siteDescription: document.getElementById('siteDescription').value,
+                about: document.getElementById('about').value,
+                footer: document.getElementById('footer').value,
+                allowComments: document.getElementById('allowComments').checked,
+                requireApproval: document.getElementById('requireApproval').checked,
+                theme: document.getElementById('theme').value
+            };
+            
+            try {
+                const res = await fetch(`${API_URL}?action=save_config`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(cfg)
+                });
+                const data = await res.json();
+                if (data.code === 200) {
+                    alert('设置已保存');
+                } else {
+                    alert(data.msg || '保存失败');
+                }
+            } catch (e) {
+                alert('保存失败');
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const current = document.getElementById('currentPwd').value;
+            const newPwd = document.getElementById('newPwd').value;
+            const confirm = document.getElementById('confirmPwd').value;
+            
+            if (newPwd !== confirm) {
+                alert('两次输入的新密码不一致');
+                return;
+            }
+            
+            if (newPwd.length < 6) {
+                alert('新密码至少6位');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}?action=save_pwd`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ current, new: newPwd })
+                });
+                const data = await res.json();
+                if (data.code === 200) {
+                    alert('密码已修改');
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    alert(data.msg || '修改失败');
+                }
+            } catch (e) {
+                alert('修改失败');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('blog_token');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

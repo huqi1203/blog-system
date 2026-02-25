@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="text-2xl font-bold text-primary flex items-center gap-2">
+                    <i class="fas fa-blog"></i>
+                    <span id="siteName">我的博客</span>
+                </a>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="index.html" class="text-gray-700 hover:text-primary transition">首页</a>
+                    <a href="articles.html" class="text-gray-700 hover:text-primary transition">文章</a>
+                    <a href="about.html" class="text-gray-700 hover:text-primary transition">关于</a>
+                    <a href="admin/index.html" class="text-gray-700 hover:text-primary transition">
+                        <i class="fas fa-user-lock"></i> 管理
+                    </a>
+                </div>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+            <div class="px-4 py-3 space-y-2">
+                <a href="index.html" class="block py-2 text-gray-700">首页</a>
+                <a href="articles.html" class="block py-2 text-gray-700">文章</a>
+                <a href="about.html" class="block py-2 text-gray-700">关于</a>
+                <a href="admin/index.html" class="block py-2 text-gray-700">管理</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 fade-in">欢迎来到我的博客</h1>
+            <p id="siteDescription" class="text-xl md:text-2xl opacity-90 mb-8 fade-in">记录生活，分享技术</p>
+            <div class="flex justify-center gap-4 fade-in">
+                <a href="articles.html" class="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition">
+                    浏览文章
+                </a>
+                <a href="admin/index.html" class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-blue-600 transition">
+                    开始写作
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search & Filter -->
+    <section class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-md p-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="搜索文章..." 
+                           class="w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <select id="categoryFilter" class="px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">所有分类</option>
+                </select>
+                <button onclick="loadArticles()" class="bg-primary text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Articles Grid -->
+    <section class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-fire text-red-500 mr-2"></i>最新文章
+            </h2>
+            <div class="flex gap-2">
+                <button onclick="setView('grid')" class="p-2 rounded-lg hover:bg-gray-200" id="gridView">
+                    <i class="fas fa-th"></i>
+                </button>
+                <button onclick="setView('list')" class="p-2 rounded-lg hover:bg-gray-200" id="listView">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="articlesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Articles will be loaded here -->
+            <div class="col-span-full text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-primary"></i>
+                <p class="mt-4 text-gray-600">加载中...</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center items-center gap-2 mt-8">
+            <!-- Pagination buttons will be loaded here -->
+        </div>
+    </section>
+
+    <!-- Tags Cloud -->
+    <section class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-md p-6">
+            <h3 class="text-xl font-bold mb-4">
+                <i class="fas fa-tags text-primary mr-2"></i>热门标签
+            </h3>
+            <div id="tagsCloud" class="flex flex-wrap gap-2">
+                <!-- Tags will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p id="footerText">© 2024 Blog System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = 'api.php';
+        let currentPage = 1;
+        let currentView = 'grid';
+        let articlesData = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfig();
+            loadCategories();
+            loadTags();
+            loadArticles();
+        });
+
+        // Toggle Mobile Menu
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        // Load Config
+        async function loadConfig() {
+            try {
+                const res = await fetch(`${API_URL}?action=get_config`);
+                const data = await res.json();
+                if (data.code === 200) {
+                    document.getElementById('siteName').textContent = data.data.siteName || '我的博客';
+                    document.getElementById('siteDescription').textContent = data.data.siteDescription || '记录生活，分享技术';
+                    document.getElementById('footerText').textContent = data.data.footer || '© 2024 Blog System';
+                }
+            } catch (e) {
+                console.error('Failed to load config:', e);
+            }
+        }
+
+        // Load Categories
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}?action=get_categories`);
+                const data = await res.json();
+                if (data.code === 200) {
+                    const select = document.getElementById('categoryFilter');
+                    data.data.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = `${cat.icon || '📁'} ${cat.name}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load categories:', e);
+            }
+        }
+
+        // Load Tags
+        async function loadTags() {
+            try {
+                const res = await fetch(`${API_URL}?action=get_tags`);
+                const data = await res.json();
+                if (data.code === 200) {
+                    const container = document.getElementById('tagsCloud');
+                    data.data.forEach(tag => {
+                        const badge = document.createElement('span');
+                        badge.className = 'px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition';
+                        badge.textContent = `${tag.name} (${tag.count || 0})`;
+                        badge.onclick = () => {
+                            document.getElementById('searchInput').value = tag.name;
+                            loadArticles();
+                        };
+                        container.appendChild(badge);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load tags:', e);
+            }
+        }
+
+        // Load Articles
+        async function loadArticles(page = 1) {
+            currentPage = page;
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            try {
+                let url = `${API_URL}?action=get_articles&page=${page}&limit=9`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (category) url += `&category=${encodeURIComponent(category)}`;
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.code === 200) {
+                    articlesData = data.data.articles;
+                    renderArticles(articlesData);
+                    renderPagination(data.data.pagination);
+                }
+            } catch (e) {
+                console.error('Failed to load articles:', e);
+                document.getElementById('articlesContainer').innerHTML = `
+                    <div class="col-span-full text-center py-12 text-red-500">
+                        <i class="fas fa-exclamation-circle text-4xl mb-4"></i>
+                        <p>加载失败，请稍后重试</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render Articles
+        function renderArticles(articles) {
+            const container = document.getElementById('articlesContainer');
+            
+            if (articles.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-600">暂无文章</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentView === 'grid') {
+                container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+                container.innerHTML = articles.map(article => `
+                    <article class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition fade-in group">
+                        <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 relative overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center text-white text-6xl opacity-30 group-hover:scale-110 transition">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="absolute top-4 left-4">
+                                <span class="px-3 py-1 bg-white/90 rounded-full text-sm font-medium">
+                                    ${article.category || '未分类'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2 line-clamp-2 group-hover:text-primary transition">
+                                <a href="article.html?id=${article.id}">${escapeHtml(article.title)}</a>
+                            </h3>
+                            <p class="text-gray-600 mb-4 line-clamp-3">${escapeHtml(article.content || '').substring(0, 100)}...</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <span><i class="far fa-calendar mr-1"></i>${article.time || article.createdAt}</span>
+                                <span><i class="far fa-eye mr-1"></i>${article.views || 0}</span>
+                            </div>
+                            ${article.tags && article.tags.length > 0 ? `
+                                <div class="mt-3 flex flex-wrap gap-1">
+                                    ${article.tags.map(tag => `<span class="text-xs px-2 py-1 bg-gray-100 rounded">${escapeHtml(tag)}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </article>
+                `).join('');
+            } else {
+                container.className = 'space-y-4';
+                container.innerHTML = articles.map(article => `
+                    <article class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition fade-in flex gap-6">
+                        <div class="w-32 h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center text-white text-3xl flex-shrink-0">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm">${article.category || '未分类'}</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 hover:text-primary transition">
+                                <a href="article.html?id=${article.id}">${escapeHtml(article.title)}</a>
+                            </h3>
+                            <p class="text-gray-600 mb-3">${escapeHtml(article.content || '').substring(0, 150)}...</p>
+                            <div class="flex items-center gap-4 text-sm text-gray-500">
+                                <span><i class="far fa-calendar mr-1"></i>${article.time || article.createdAt}</span>
+                                <span><i class="far fa-eye mr-1"></i>${article.views || 0} 阅读</span>
+                                <span><i class="far fa-comment mr-1"></i>${article.commentCount || 0} 评论</span>
+                            </div>
+                        </div>
+                    </article>
+                `).join('');
+            }
+        }
+
+        // Render Pagination
+        function renderPagination(pagination) {
+            const container = document.getElementById('pagination');
+            let html = '';
+            
+            if (pagination.page > 1) {
+                html += `<button onclick="loadArticles(${pagination.page - 1})" class="px-4 py-2 border rounded-lg hover:bg-gray-100">上一页</button>`;
+            }
+            
+            for (let i = 1; i <= pagination.pages; i++) {
+                if (i === pagination.page) {
+                    html += `<button class="px-4 py-2 bg-primary text-white rounded-lg">${i}</button>`;
+                } else if (i === 1 || i === pagination.pages || Math.abs(i - pagination.page) <= 2) {
+                    html += `<button onclick="loadArticles(${i})" class="px-4 py-2 border rounded-lg hover:bg-gray-100">${i}</button>`;
+                } else if (Math.abs(i - pagination.page) === 3) {
+                    html += `<span class="px-2">...</span>`;
+                }
+            }
+            
+            if (pagination.page < pagination.pages) {
+                html += `<button onclick="loadArticles(${pagination.page + 1})" class="px-4 py-2 border rounded-lg hover:bg-gray-100">下一页</button>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Set View Mode
+        function setView(view) {
+            currentView = view;
+            document.getElementById('gridView').classList.toggle('bg-gray-200', view === 'grid');
+            document.getElementById('listView').classList.toggle('bg-gray-200', view === 'list');
+            renderArticles(articlesData);
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
