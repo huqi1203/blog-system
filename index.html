@@ -37,10 +37,15 @@
         .halo-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
         }
         .halo-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.25);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+        .dark .halo-card:hover {
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.15);
         }
         
         /* Smooth gradient background */

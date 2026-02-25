@@ -100,12 +100,40 @@
             border-radius: 12px;
             overflow-x: auto;
             margin: 1.5rem 0;
+            position: relative;
         }
         .article-content pre code {
             background: none;
             padding: 0;
             color: inherit;
             font-size: 0.9rem;
+        }
+        
+        /* Code copy button */
+        .code-copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: #9ca3af;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .code-copy-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .code-copy-btn.copied {
+            background: #10b981;
+            border-color: #10b981;
+            color: #fff;
         }
         
         .article-content img {
@@ -388,6 +416,26 @@
             const contentHtml = marked.parse(article.content || '');
             document.getElementById('articleContent').innerHTML = contentHtml;
             hljs.highlightAll();
+            
+            // Add copy buttons to code blocks
+            document.querySelectorAll('pre').forEach(pre => {
+                const button = document.createElement('button');
+                button.className = 'code-copy-btn';
+                button.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                button.onclick = function() {
+                    const code = pre.querySelector('code');
+                    const text = code ? code.textContent : pre.textContent;
+                    navigator.clipboard.writeText(text).then(() => {
+                        button.classList.add('copied');
+                        button.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                        setTimeout(() => {
+                            button.classList.remove('copied');
+                            button.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                        }, 2000);
+                    });
+                };
+                pre.appendChild(button);
+            });
 
             // Render tags
             const tagsContainer = document.getElementById('articleTags');
