@@ -3,151 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博客系统</title>
+    <title>我的博客</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'sans-serif'],
+                    },
                     colors: {
                         primary: '#3b82f6',
-                        secondary: '#64748b'
+                        secondary: '#64748b',
+                        halo: {
+                            bg: '#f5f5f5',
+                            card: '#ffffff',
+                            text: '#333333',
+                            muted: '#666666',
+                            border: '#e5e5e5'
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        .line-clamp-3 {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        /* Halo-style card hover effect */
+        .halo-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
+        .halo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        /* Smooth gradient background */
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Fade in animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        /* Tag hover effect */
+        .tag-hover:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        /* Glass morphism nav */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        /* Dark mode styles */
+        .dark body {
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+        }
+        .dark .glass-nav {
+            background: rgba(26, 26, 26, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .dark .halo-card {
+            background: #242424;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .dark .text-gray-600 { color: #a0a0a0; }
+        .dark .text-gray-800 { color: #e5e5e5; }
+        .dark .text-gray-500 { color: #808080; }
+        .dark .bg-gray-50 { background-color: #242424; }
+        .dark .bg-gray-100 { background-color: #2a2a2a; }
+        .dark .bg-white { background-color: #1a1a1a; }
+        .dark .border-gray-200 { border-color: rgba(255,255,255,0.1); }
+        
+        /* Image overlay gradient */
+        .img-overlay {
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 100%);
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 text-gray-800">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4">
+    <nav class="glass-nav sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <a href="index.html" class="text-2xl font-bold text-primary flex items-center gap-2">
-                    <i class="fas fa-blog"></i>
-                    <span id="siteName">我的博客</span>
+                <!-- Logo -->
+                <a href="index.html" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold group-hover:scale-110 transition-transform">
+                        B
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent" id="siteName">我的博客</span>
                 </a>
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="index.html" class="text-gray-700 hover:text-primary transition">首页</a>
-                    <a href="articles.html" class="text-gray-700 hover:text-primary transition">文章</a>
-                    <a href="about.html" class="text-gray-700 hover:text-primary transition">关于</a>
-                    <a href="admin/index.html" class="text-gray-700 hover:text-primary transition">
-                        <i class="fas fa-user-lock"></i> 管理
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium transition relative group">
+                        首页
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="articles.html" class="text-gray-700 hover:text-indigo-600 font-medium transition relative group">
+                        文章
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="about.html" class="text-gray-700 hover:text-indigo-600 font-medium transition relative group">
+                        关于
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-300"></span>
                     </a>
                 </div>
-                <button onclick="toggleMobileMenu()" class="md:hidden text-gray-700">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
+                
+                <!-- Right Side -->
+                <div class="flex items-center gap-4">
+                    <!-- Dark Mode Toggle -->
+                    <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                    
+                    <!-- Admin Link -->
+                    <a href="admin/index.html" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition text-sm font-medium">
+                        <i class="fas fa-user"></i>
+                        <span>管理</span>
+                    </a>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
             </div>
         </div>
+        
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
-            <div class="px-4 py-3 space-y-2">
-                <a href="index.html" class="block py-2 text-gray-700">首页</a>
-                <a href="articles.html" class="block py-2 text-gray-700">文章</a>
-                <a href="about.html" class="block py-2 text-gray-700">关于</a>
-                <a href="admin/index.html" class="block py-2 text-gray-700">管理</a>
+        <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-gray-900 border-t dark:border-gray-800">
+            <div class="px-4 py-3 space-y-1">
+                <a href="index.html" class="block px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">首页</a>
+                <a href="articles.html" class="block px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">文章</a>
+                <a href="about.html" class="block px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">关于</a>
+                <a href="admin/index.html" class="block px-4 py-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400">管理后台</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-4 fade-in">欢迎来到我的博客</h1>
-            <p id="siteDescription" class="text-xl md:text-2xl opacity-90 mb-8 fade-in">记录生活，分享技术</p>
-            <div class="flex justify-center gap-4 fade-in">
-                <a href="articles.html" class="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition">
-                    浏览文章
-                </a>
-                <a href="admin/index.html" class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-blue-600 transition">
-                    开始写作
-                </a>
+    <section class="relative overflow-hidden">
+        <div class="hero-gradient absolute inset-0"></div>
+        <div class="absolute inset-0 bg-black/20"></div>
+        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.08\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); opacity: 0.5;"></div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+            <div class="text-center max-w-3xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in" id="siteTitle">
+                    探索思维的边界
+                </h1>
+                <p class="text-xl md:text-2xl text-white/90 mb-10 animate-fade-in" style="animation-delay: 0.1s" id="siteDescription">
+                    记录技术成长，分享生活感悟
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style="animation-delay: 0.2s">
+                    <a href="articles.html" class="px-8 py-4 bg-white text-indigo-600 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg hover:shadow-xl">
+                        开始阅读
+                    </a>
+                    <a href="admin/edit.html" class="px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-semibold hover:bg-white/10 transition">
+                        写篇文章
+                    </a>
+                </div>
             </div>
+        </div>
+        
+        <!-- Wave Divider -->
+        <div class="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#f9fafb"/>
+            </svg>
         </div>
     </section>
 
-    <!-- Search & Filter -->
-    <section class="max-w-7xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-md p-6">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1 relative">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchInput" placeholder="搜索文章..." 
-                           class="w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
+    <!-- Search & Filter Section -->
+    <section class="py-8 -mt-1 bg-gray-50 dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 -mt-20 relative z-10">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="searchInput" placeholder="搜索感兴趣的文章..." 
+                               class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition dark:text-white">
+                    </div>
+                    <select id="categoryFilter" class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 dark:text-gray-300">
+                        <option value="">所有分类</option>
+                    </select>
+                    <button onclick="loadArticles()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all">
+                        搜索
+                    </button>
                 </div>
-                <select id="categoryFilter" class="px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option value="">所有分类</option>
-                </select>
-                <button onclick="loadArticles()" class="bg-primary text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition">
-                    搜索
-                </button>
             </div>
         </div>
     </section>
 
     <!-- Articles Grid -->
-    <section class="max-w-7xl mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">
-                <i class="fas fa-fire text-red-500 mr-2"></i>最新文章
-            </h2>
-            <div class="flex gap-2">
-                <button onclick="setView('grid')" class="p-2 rounded-lg hover:bg-gray-200" id="gridView">
-                    <i class="fas fa-th"></i>
-                </button>
-                <button onclick="setView('list')" class="p-2 rounded-lg hover:bg-gray-200" id="listView">
-                    <i class="fas fa-list"></i>
-                </button>
+    <section class="py-12 bg-gray-50 dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-fire text-orange-500"></i>
+                    最新文章
+                </h2>
+                <div class="flex gap-2">
+                    <button onclick="setView('grid')" id="gridView" class="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button onclick="setView('list')" id="listView" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
             </div>
-        </div>
-        
-        <div id="articlesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Articles will be loaded here -->
-            <div class="col-span-full text-center py-12">
-                <i class="fas fa-spinner fa-spin text-4xl text-primary"></i>
-                <p class="mt-4 text-gray-600">加载中...</p>
+            
+            <div id="articlesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loading State -->
+                <div class="col-span-full flex flex-col items-center justify-center py-20">
+                    <div class="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                    <p class="mt-4 text-gray-500">加载中...</p>
+                </div>
             </div>
-        </div>
 
-        <!-- Pagination -->
-        <div id="pagination" class="flex justify-center items-center gap-2 mt-8">
-            <!-- Pagination buttons will be loaded here -->
+            <!-- Pagination -->
+            <div id="pagination" class="flex justify-center items-center gap-2 mt-12"></div>
         </div>
     </section>
 
     <!-- Tags Cloud -->
-    <section class="max-w-7xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-2xl shadow-md p-6">
-            <h3 class="text-xl font-bold mb-4">
-                <i class="fas fa-tags text-primary mr-2"></i>热门标签
+    <section class="py-12 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                <i class="fas fa-tags text-indigo-500"></i>
+                热门标签
             </h3>
-            <div id="tagsCloud" class="flex flex-wrap gap-2">
+            <div id="tagsCloud" class="flex flex-wrap gap-3">
                 <!-- Tags will be loaded here -->
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p id="footerText">© 2024 Blog System. All rights reserved.</p>
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h4 class="text-white font-bold text-lg mb-4" id="footerSiteName">我的博客</h4>
+                    <p class="text-sm" id="footerDesc">记录生活，分享技术</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-lg mb-4">快速链接</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="index.html" class="hover:text-white transition">首页</a></li>
+                        <li><a href="articles.html" class="hover:text-white transition">文章</a></li>
+                        <li><a href="about.html" class="hover:text-white transition">关于</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-lg mb-4">联系方式</h4>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-indigo-600 transition">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-500 transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 transition">
+                            <i class="fab fa-weixin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-sm" id="footerText">
+                © 2024 Blog System. All rights reserved.
+            </div>
         </div>
     </footer>
 
@@ -159,13 +325,27 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            initDarkMode();
             loadConfig();
             loadCategories();
             loadTags();
             loadArticles();
         });
 
-        // Toggle Mobile Menu
+        // Dark Mode
+        function initDarkMode() {
+            if (localStorage.getItem('darkMode') === 'true' || 
+                (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+
+        // Mobile Menu
         function toggleMobileMenu() {
             document.getElementById('mobileMenu').classList.toggle('hidden');
         }
@@ -177,7 +357,10 @@
                 const data = await res.json();
                 if (data.code === 200) {
                     document.getElementById('siteName').textContent = data.data.siteName || '我的博客';
-                    document.getElementById('siteDescription').textContent = data.data.siteDescription || '记录生活，分享技术';
+                    document.getElementById('siteTitle').textContent = data.data.siteName || '我的博客';
+                    document.getElementById('siteDescription').textContent = data.data.siteDescription || '记录技术成长，分享生活感悟';
+                    document.getElementById('footerSiteName').textContent = data.data.siteName || '我的博客';
+                    document.getElementById('footerDesc').textContent = data.data.siteDescription || '记录生活，分享技术';
                     document.getElementById('footerText').textContent = data.data.footer || '© 2024 Blog System';
                 }
             } catch (e) {
@@ -213,8 +396,8 @@
                     const container = document.getElementById('tagsCloud');
                     data.data.forEach(tag => {
                         const badge = document.createElement('span');
-                        badge.className = 'px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition';
-                        badge.textContent = `${tag.name} (${tag.count || 0})`;
+                        badge.className = 'px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm cursor-pointer border border-transparent tag-hover transition-all';
+                        badge.textContent = `${tag.name} · ${tag.count || 0}`;
                         badge.onclick = () => {
                             document.getElementById('searchInput').value = tag.name;
                             loadArticles();
@@ -249,7 +432,7 @@
             } catch (e) {
                 console.error('Failed to load articles:', e);
                 document.getElementById('articlesContainer').innerHTML = `
-                    <div class="col-span-full text-center py-12 text-red-500">
+                    <div class="col-span-full text-center py-20 text-red-500">
                         <i class="fas fa-exclamation-circle text-4xl mb-4"></i>
                         <p>加载失败，请稍后重试</p>
                     </div>
@@ -263,9 +446,10 @@
             
             if (articles.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full text-center py-12">
+                    <div class="col-span-full text-center py-20">
                         <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-600">暂无文章</p>
+                        <p class="text-gray-500 text-lg">暂无文章</p>
+                        <a href="admin/edit.html" class="mt-4 inline-block px-6 py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition">写篇文章</a>
                     </div>
                 `;
                 return;
@@ -273,51 +457,56 @@
 
             if (currentView === 'grid') {
                 container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
-                container.innerHTML = articles.map(article => `
-                    <article class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition fade-in group">
-                        <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 relative overflow-hidden">
-                            <div class="absolute inset-0 flex items-center justify-center text-white text-6xl opacity-30 group-hover:scale-110 transition">
-                                <i class="fas fa-newspaper"></i>
-                            </div>
-                            <div class="absolute top-4 left-4">
-                                <span class="px-3 py-1 bg-white/90 rounded-full text-sm font-medium">
-                                    ${article.category || '未分类'}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2 line-clamp-2 group-hover:text-primary transition">
-                                <a href="article.html?id=${article.id}">${escapeHtml(article.title)}</a>
-                            </h3>
-                            <p class="text-gray-600 mb-4 line-clamp-3">${escapeHtml(article.content || '').substring(0, 100)}...</p>
-                            <div class="flex items-center justify-between text-sm text-gray-500">
-                                <span><i class="far fa-calendar mr-1"></i>${article.time || article.createdAt}</span>
-                                <span><i class="far fa-eye mr-1"></i>${article.views || 0}</span>
-                            </div>
-                            ${article.tags && article.tags.length > 0 ? `
-                                <div class="mt-3 flex flex-wrap gap-1">
-                                    ${article.tags.map(tag => `<span class="text-xs px-2 py-1 bg-gray-100 rounded">${escapeHtml(tag)}</span>`).join('')}
+                container.innerHTML = articles.map((article, index) => `
+                    <article class="halo-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden group animate-fade-in" style="animation-delay: ${index * 0.1}s">
+                        <a href="article.html?id=${article.id}" class="block">
+                            <div class="h-48 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 relative overflow-hidden">
+                                <div class="absolute inset-0 flex items-center justify-center text-white/30 text-6xl group-hover:scale-110 transition-transform duration-500">
+                                    <i class="fas fa-newspaper"></i>
                                 </div>
-                            ` : ''}
-                        </div>
+                                <div class="absolute top-4 left-4">
+                                    <span class="px-3 py-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur rounded-full text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                                        ${article.category || '未分类'}
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-0 left-0 right-0 img-overlay p-4">
+                                    <div class="flex items-center gap-3 text-white/90 text-sm">
+                                        <span><i class="far fa-calendar mr-1"></i>${article.time || article.createdAt}</span>
+                                        <span><i class="far fa-eye mr-1"></i>${article.views || 0}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-3 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                    ${escapeHtml(article.title)}
+                                </h3>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-4">${escapeHtml(article.content || '').substring(0, 100)}...</p>
+                                ${article.tags && article.tags.length > 0 ? `
+                                    <div class="flex flex-wrap gap-2">
+                                        ${article.tags.slice(0, 3).map(tag => `<span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">${escapeHtml(tag)}</span>`).join('')}
+                                        ${article.tags.length > 3 ? `<span class="text-xs px-2 py-1 text-gray-400">+${article.tags.length - 3}</span>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </a>
                     </article>
                 `).join('');
             } else {
                 container.className = 'space-y-4';
-                container.innerHTML = articles.map(article => `
-                    <article class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition fade-in flex gap-6">
-                        <div class="w-32 h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center text-white text-3xl flex-shrink-0">
+                container.innerHTML = articles.map((article, index) => `
+                    <article class="halo-card bg-white dark:bg-gray-800 rounded-2xl p-6 flex gap-6 group animate-fade-in" style="animation-delay: ${index * 0.1}s">
+                        <div class="w-32 h-32 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 rounded-xl flex-shrink-0 flex items-center justify-center text-white text-3xl group-hover:scale-105 transition-transform">
                             <i class="fas fa-newspaper"></i>
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 flex flex-col justify-center">
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm">${article.category || '未分类'}</span>
+                                <span class="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-xs font-medium">${article.category || '未分类'}</span>
                             </div>
-                            <h3 class="text-xl font-bold mb-2 hover:text-primary transition">
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                 <a href="article.html?id=${article.id}">${escapeHtml(article.title)}</a>
                             </h3>
-                            <p class="text-gray-600 mb-3">${escapeHtml(article.content || '').substring(0, 150)}...</p>
-                            <div class="flex items-center gap-4 text-sm text-gray-500">
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">${escapeHtml(article.content || '').substring(0, 150)}...</p>
+                            <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                                 <span><i class="far fa-calendar mr-1"></i>${article.time || article.createdAt}</span>
                                 <span><i class="far fa-eye mr-1"></i>${article.views || 0} 阅读</span>
                                 <span><i class="far fa-comment mr-1"></i>${article.commentCount || 0} 评论</span>
@@ -331,24 +520,28 @@
         // Render Pagination
         function renderPagination(pagination) {
             const container = document.getElementById('pagination');
-            let html = '';
+            if (pagination.pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
             
+            let html = '';
             if (pagination.page > 1) {
-                html += `<button onclick="loadArticles(${pagination.page - 1})" class="px-4 py-2 border rounded-lg hover:bg-gray-100">上一页</button>`;
+                html += `<button onclick="loadArticles(${pagination.page - 1})" class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm"><i class="fas fa-chevron-left"></i></button>`;
             }
             
             for (let i = 1; i <= pagination.pages; i++) {
                 if (i === pagination.page) {
-                    html += `<button class="px-4 py-2 bg-primary text-white rounded-lg">${i}</button>`;
-                } else if (i === 1 || i === pagination.pages || Math.abs(i - pagination.page) <= 2) {
-                    html += `<button onclick="loadArticles(${i})" class="px-4 py-2 border rounded-lg hover:bg-gray-100">${i}</button>`;
-                } else if (Math.abs(i - pagination.page) === 3) {
-                    html += `<span class="px-2">...</span>`;
+                    html += `<button class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md">${i}</button>`;
+                } else if (i === 1 || i === pagination.pages || Math.abs(i - pagination.page) <= 1) {
+                    html += `<button onclick="loadArticles(${i})" class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm">${i}</button>`;
+                } else if (Math.abs(i - pagination.page) === 2) {
+                    html += `<span class="px-2 text-gray-400">...</span>`;
                 }
             }
             
             if (pagination.page < pagination.pages) {
-                html += `<button onclick="loadArticles(${pagination.page + 1})" class="px-4 py-2 border rounded-lg hover:bg-gray-100">下一页</button>`;
+                html += `<button onclick="loadArticles(${pagination.page + 1})" class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm"><i class="fas fa-chevron-right"></i></button>`;
             }
             
             container.innerHTML = html;
@@ -357,8 +550,12 @@
         // Set View Mode
         function setView(view) {
             currentView = view;
-            document.getElementById('gridView').classList.toggle('bg-gray-200', view === 'grid');
-            document.getElementById('listView').classList.toggle('bg-gray-200', view === 'list');
+            document.getElementById('gridView').className = view === 'grid' 
+                ? 'p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' 
+                : 'p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800';
+            document.getElementById('listView').className = view === 'list' 
+                ? 'p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' 
+                : 'p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800';
             renderArticles(articlesData);
         }
 
