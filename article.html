@@ -112,23 +112,26 @@
         /* Code copy button */
         .code-copy-btn {
             position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            padding: 0.5rem 1rem;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
             border-radius: 6px;
-            color: #9ca3af;
-            font-size: 0.875rem;
+            color: #d1d5db;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
+            z-index: 10;
+            backdrop-filter: blur(4px);
         }
         .code-copy-btn:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.25);
             color: #fff;
+            border-color: rgba(255,255,255,0.5);
         }
         .code-copy-btn.copied {
             background: #10b981;
@@ -418,24 +421,107 @@
             hljs.highlightAll();
             
             // Add copy buttons to code blocks
-            document.querySelectorAll('pre').forEach(pre => {
-                const button = document.createElement('button');
-                button.className = 'code-copy-btn';
-                button.innerHTML = '<i class="fas fa-copy"></i> 复制';
-                button.onclick = function() {
-                    const code = pre.querySelector('code');
-                    const text = code ? code.textContent : pre.textContent;
+            function initCopyButtons() {
+                document.querySelectorAll('pre').forEach(pre => {
+                    if (pre.querySelector('.code-copy-btn')) return;
+                    
+                    const button = document.createElement('button');
+                    button.className = 'code-copy-btn';
+                    button.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                    button.title = '复制代码';
+                    button.type = 'button';
+                    
+                    button.onclick = function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        
+                        const code = pre.querySelector('code');
+                        let text = '';
+                        
+                        if (code) {
+                            text = code.innerText || code.textContent;
+                        } else {
+                            const clone = pre.cloneNode(true);
+                            const btn = clone.querySelector('.code-copy-btn');
+                            if (btn) btn.remove();
+                            text = clone.innerText || clone.textContent;
+                        }
+                        
+                        copyToClipboard(text.trim(), button);
+                    };
+                    
+                    pre.appendChild(button);
+                });
+            }
+            
+            initCopyButtons();
+            
+            function copyToClipboard(text, button) {
+                if (!text) {
+                    showCopyError(button, '内容为空');
+                    return;
+                }
+                
+                // 方法1: 现代 Clipboard API
+                if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(text).then(() => {
-                        button.classList.add('copied');
-                        button.innerHTML = '<i class="fas fa-check"></i> 已复制';
-                        setTimeout(() => {
-                            button.classList.remove('copied');
-                            button.innerHTML = '<i class="fas fa-copy"></i> 复制';
-                        }, 2000);
+                        showCopySuccess(button);
+                    }).catch((err) => {
+                        console.log('Clipboard API 失败，使用降级方案:', err);
+                        copyWithFallback(text, button);
                     });
-                };
-                pre.appendChild(button);
-            });
+                } else {
+                    copyWithFallback(text, button);
+                }
+            }
+            
+            function copyWithFallback(text, button) {
+                // 清理文本，移除开头的换行符
+                text = text.replace(/^\n+/, '').replace(/\n+$/, '');
+                
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.setAttribute('readonly', '');
+                textarea.style.cssText = 'position:fixed;opacity:0;pointer-events:none;z-index:-9999;top:-9999px;left:-9999px;';
+                document.body.appendChild(textarea);
+                
+                textarea.focus();
+                textarea.select();
+                
+                try {
+                    const success = document.execCommand('copy');
+                    if (success) {
+                        showCopySuccess(button);
+                    } else {
+                        showCopyError(button, '复制失败');
+                    }
+                } catch (err) {
+                    console.error('复制失败:', err);
+                    showCopyError(button, '复制失败');
+                }
+                
+                document.body.removeChild(textarea);
+            }
+            
+            function showCopySuccess(button) {
+                const originalHTML = button.innerHTML;
+                button.classList.add('copied');
+                button.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            }
+            
+            function showCopyError(button, msg) {
+                const originalHTML = button.innerHTML;
+                button.style.background = '#ef4444';
+                button.innerHTML = '<i class="fas fa-times"></i> ' + msg;
+                setTimeout(() => {
+                    button.style.background = '';
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            }
 
             // Render tags
             const tagsContainer = document.getElementById('articleTags');

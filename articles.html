@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章列表 - 博客系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .dark .glass-nav {
+            background: rgba(26, 26, 26, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .halo-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .halo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.25);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+        .dark body { background-color: #111827; color: #e5e7eb; }
+        .dark .bg-white { background-color: #1f2937; }
+        .dark .text-gray-800 { color: #f3f4f6; }
+        .dark .text-gray-600 { color: #9ca3af; }
+        .dark .bg-gray-50 { background-color: #111827; }
+        .dark .bg-gray-100 { background-color: #374151; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold group-hover:scale-110 transition">B</div>
+                    <span class="font-bold text-gray-800 dark:text-white">我的博客</span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                    <a href="admin/index.html" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-800 transition">
+                        <i class="fas fa-user"></i> 管理
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="bg-gradient-to-r from-indigo-600 to-purple-600 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <h1 class="text-3xl font-bold text-white">所有文章</h1>
+            <p class="text-white/80 mt-2">浏览所有发布的文章</p>
+        </div>
+    </section>
+
+    <!-- Articles Grid -->
+    <section class="py-12 bg-gray-50 dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <!-- Filter -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 -mt-16 relative z-10">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="searchInput" placeholder="搜索文章..." 
+                               class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                    </div>
+                    <select id="categoryFilter" class="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                        <option value="">所有分类</option>
+                    </select>
+                    <button onclick="loadArticles()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition">
+                        搜索
+                    </button>
+                </div>
+            </div>
+
+            <!-- Articles -->
+            <div id="articlesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="col-span-full text-center py-20">
+                    <div class="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto"></div>
+                    <p class="mt-4 text-gray-500">加载中...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="flex justify-center items-center gap-2 mt-12"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>© 2024 Blog System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = 'api.php';
+        let currentPage = 1;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDarkMode();
+            loadCategories();
+            loadArticles();
+        });
+
+        function initDarkMode() {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}?action=get_categories`);
+                const data = await res.json();
+                if (data.code === 200) {
+                    const select = document.getElementById('categoryFilter');
+                    data.data.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = `${cat.icon || '📁'} ${cat.name}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load categories:', e);
+            }
+        }
+
+        async function loadArticles(page = 1) {
+            currentPage = page;
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            try {
+                let url = `${API_URL}?action=get_articles&page=${page}&limit=12`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (category) url += `&category=${encodeURIComponent(category)}`;
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.code === 200) {
+                    renderArticles(data.data.articles);
+                    renderPagination(data.data.pagination);
+                }
+            } catch (e) {
+                console.error('Failed to load articles:', e);
+            }
+        }
+
+        function renderArticles(articles) {
+            const container = document.getElementById('articlesContainer');
+            
+            if (articles.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 text-lg">暂无文章</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = articles.map((article, index) => `
+                <article class="halo-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden group">
+                    <a href="article.html?id=${article.id}" class="block">
+                        <div class="h-48 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 relative overflow-hidden">
+                            <div class="absolute inset-0 flex items-center justify-center text-white/30 text-6xl group-hover:scale-110 transition-transform duration-500">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="absolute top-4 left-4">
+                                <span class="px-3 py-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur rounded-full text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                                    ${article.category || '未分类'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-3 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                ${escapeHtml(article.title)}
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-4">${escapeHtml(article.content || '').substring(0, 100)}...</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                                <span><i class="far fa-calendar mr-1"></i>${article.time || article.createdAt}</span>
+                                <span><i class="far fa-eye mr-1"></i>${article.views || 0}</span>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+            `).join('');
+        }
+
+        function renderPagination(pagination) {
+            const container = document.getElementById('pagination');
+            if (pagination.pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            if (pagination.page > 1) {
+                html += `<button onclick="loadArticles(${pagination.page - 1})" class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm"><i class="fas fa-chevron-left"></i></button>`;
+            }
+            
+            for (let i = 1; i <= pagination.pages; i++) {
+                if (i === pagination.page) {
+                    html += `<button class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md">${i}</button>`;
+                } else if (i === 1 || i === pagination.pages || Math.abs(i - pagination.page) <= 1) {
+                    html += `<button onclick="loadArticles(${i})" class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm">${i}</button>`;
+                } else if (Math.abs(i - pagination.page) === 2) {
+                    html += `<span class="px-2 text-gray-400">...</span>`;
+                }
+            }
+            
+            if (pagination.page < pagination.pages) {
+                html += `<button onclick="loadArticles(${pagination.page + 1})" class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm"><i class="fas fa-chevron-right"></i></button>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

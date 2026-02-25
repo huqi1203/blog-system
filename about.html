@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于 - 博客系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .dark .glass-nav {
+            background: rgba(26, 26, 26, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .dark body { background-color: #111827; color: #e5e7eb; }
+        .dark .bg-white { background-color: #1f2937; }
+        .dark .text-gray-800 { color: #f3f4f6; }
+        .dark .text-gray-600 { color: #9ca3af; }
+        .dark .bg-gray-50 { background-color: #111827; }
+        .dark .bg-gray-100 { background-color: #374151; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold group-hover:scale-110 transition">B</div>
+                    <span class="font-bold text-gray-800 dark:text-white">我的博客</span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                    <a href="admin/index.html" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-800 transition">
+                        <i class="fas fa-user"></i> 管理
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="bg-gradient-to-r from-indigo-600 to-purple-600 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+            <h1 class="text-4xl font-bold text-white mb-4">关于本站</h1>
+            <p class="text-white/80">了解更多关于这个博客的信息</p>
+        </div>
+    </section>
+
+    <!-- About Content -->
+    <section class="py-16 bg-gray-50 dark:bg-gray-900">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 md:p-12">
+                <div class="prose dark:prose-invert max-w-none">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">欢迎来到我的博客</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6" id="aboutContent">
+                        这是一个基于 PHP + Docker 构建的轻量级博客系统。它支持文章管理、分类标签、评论系统等功能。
+                    </p>
+                    
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4 mt-8">功能特性</h3>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-400">
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> 文章发布与管理</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> 分类与标签系统</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> 评论与审核</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> Markdown 编辑器</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> 响应式设计</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> 深色模式支持</li>
+                    </ul>
+
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4 mt-8">技术栈</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-sm">PHP 8.1</span>
+                        <span class="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm">Docker</span>
+                        <span class="px-4 py-2 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-full text-sm">Tailwind CSS</span>
+                        <span class="px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-full text-sm">JavaScript</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>© 2024 Blog System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initDarkMode();
+            loadAbout();
+        });
+
+        function initDarkMode() {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+
+        async function loadAbout() {
+            try {
+                const res = await fetch('api.php?action=get_config');
+                const data = await res.json();
+                if (data.code === 200 && data.data.about) {
+                    document.getElementById('aboutContent').textContent = data.data.about;
+                }
+            } catch (e) {
+                console.error('Failed to load about:', e);
+            }
+        }
+    </script>
+</body>
+</html>
