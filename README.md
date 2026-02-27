@@ -19,14 +19,14 @@
 **在任何有 Docker 的设备上执行：**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/huqi1203/blog-system/main/install.sh | bash
+curl -fsSL https://gitee.com/huqi1203/blog-system/raw/main/install.sh | bash
 ```
 
 ### 方式 2: 手动安装
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/huqi1203/blog-system.git
+git clone https://gitee.com/huqi1203/blog-system.git
 cd blog-system
 
 # 2. 启动服务
@@ -42,7 +42,7 @@ docker-compose up -d
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/huqi1203/blog-system.git
+git clone https://gitee.com/huqi1203/blog-system.git
 cd blog-system
 
 # 2. 启动 PHP 内置服务器
