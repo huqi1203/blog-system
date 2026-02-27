@@ -14,7 +14,15 @@
 
 ## 🚀 快速开始
 
-### 方式 1: Docker 部署（推荐）
+### 方式 1: 一键安装（推荐 ⭐）
+
+**在任何有 Docker 的设备上执行：**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/huqi1203/blog-system/main/install.sh | bash
+```
+
+### 方式 2: 手动安装
 
 ```bash
 # 1. 克隆项目
