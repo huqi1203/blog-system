@@ -6,12 +6,8 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- TinyMCE 富文本编辑器 -->
-    <script src="https://cdn.tiny.cloud/1/9yxq2tqvwe6hchn5osqjmda6vp8pgtwvgwpxxveo708s9eqf/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-    <!-- PrismJS 代码高亮和复制 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+    <!-- CKEditor 5 富文本编辑器 -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="flex h-screen">
@@ -81,7 +77,7 @@
 
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">文章内容</label>
-                        <textarea id="content"></textarea>
+                        <div id="editor"></div>
                     </div>
 
                     <div class="flex justify-end gap-4">
@@ -97,6 +93,7 @@
 
     <script>
         const API_URL = '../api.php';
+        let editor;
         let articleId = null;
         const token = localStorage.getItem('blog_token');
         if (!token) window.location.href = 'login.html';
@@ -114,104 +111,119 @@
             }
         });
 
-        function initEditor() {
-            tinymce.init({
-                selector: '#content',
-                language: 'zh_CN',
-                height: 600,
-                menubar: true,
-                plugins: [
-                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'table', 'emoticons', 'wordcount',
-                    'paste', 'help', 'directionality', 'nonbreaking',
-                    'codesample'
-                ],
-                toolbar: 'undo redo | blocks fontfamily fontsize | ' +
-                    'bold italic forecolor backcolor | ' +
-                    'alignleft aligncenter alignright alignjustify | ' +
-                    'bullist numlist outdent indent | ' +
-                    'link image media table codesample | ' +
-                    'removeformat | fullscreen preview code',
-                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 16px; }',
-                image_title: true,
-                automatic_uploads: true,
-                file_picker_types: 'image',
-                file_picker_callback: function(cb, value, meta) {
-                    const input = document.createElement('input');
-                    input.setAttribute('type', 'file');
-                    input.setAttribute('accept', 'image/*');
-                    
-                    input.addEventListener('change', (e) => {
-                        const file = e.target.files[0];
-                        const reader = new FileReader();
-                        
-                        reader.addEventListener('load', () => {
-                            const id = 'blobid' + (new Date()).getTime();
-                            const blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                            const base64 = reader.result.split(',')[1];
-                            const blobInfo = blobCache.create(id, file, base64);
-                            blobCache.add(blobInfo);
-                            
-                            // 上传到服务器
-                            const formData = new FormData();
-                            formData.append('image', file);
-                            
-                            fetch(`${API_URL}?action=upload_image`, {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': `Bearer ${token}`
-                                },
-                                body: formData
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.code === 200 && data.data && data.data.url) {
-                                    cb(data.data.url, { alt: file.name });
-                                } else {
-                                    alert('上传失败：' + (data.msg || '未知错误'));
-                                }
-                            })
-                            .catch(err => {
-                                alert('上传失败：' + err.message);
-                            });
-                        });
-                        
-                        reader.readAsDataURL(file);
-                    });
-                    
-                    input.click();
-                },
-                paste_data_images: true,
-                paste_preprocess: function(plugin, args) {
-                    // 处理粘贴的内容
-                },
-                setup: function(editor) {
-                    editor.on('paste', function(e) {
-                        // 处理粘贴事件
-                    });
-                },
-                codesample_languages: [
-                    {text: 'HTML/XML', value: 'markup'},
-                    {text: 'JavaScript', value: 'javascript'},
-                    {text: 'CSS', value: 'css'},
-                    {text: 'PHP', value: 'php'},
-                    {text: 'Python', value: 'python'},
-                    {text: 'Java', value: 'java'},
-                    {text: 'C', value: 'c'},
-                    {text: 'C++', value: 'cpp'},
-                    {text: 'C#', value: 'csharp'},
-                    {text: 'Go', value: 'go'},
-                    {text: 'Rust', value: 'rust'},
-                    {text: 'SQL', value: 'sql'},
-                    {text: 'Bash', value: 'bash'},
-                    {text: 'JSON', value: 'json'},
-                    {text: 'Markdown', value: 'markdown'}
-                ],
-                toolbar_mode: 'wrap',
-                contextmenu: 'link image table codesample',
-                branding: false
-            });
+        async function initEditor() {
+            try {
+                editor = await ClassicEditor.create(
+                    document.querySelector('#editor'),
+                    {
+                        licenseKey: '', // 开源版本，免费
+                        language: 'zh-cn',
+                        toolbar: [
+                            'heading', '|',
+                            'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+                            'blockQuote', 'insertTable', '|',
+                            'codeBlock', '|',
+                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                            'alignment', '|',
+                            'imageUpload', '|',
+                            'undo', 'redo', '|',
+                            'sourceEditing'
+                        ],
+                        fontSize: {
+                            options: [10, 12, 14, 'default', 18, 20, 22, 24, 28, 32, 36, 48],
+                            supportAllValues: true
+                        },
+                        fontFamily: {
+                            options: [
+                                'default',
+                                'Arial, Helvetica, sans-serif',
+                                'Courier New, Courier, monospace',
+                                'Georgia, serif',
+                                'Impact, sans-serif',
+                                'Tahoma, Geneva, sans-serif',
+                                'Times New Roman, Times, serif',
+                                'Trebuchet MS, Helvetica, sans-serif',
+                                'Verdana, Geneva, sans-serif'
+                            ],
+                            supportAllValues: true
+                        },
+                        fontColor: {
+                            colors: [
+                                { color: 'hsl(0, 0%, 0%)', label: 'Black' },
+                                { color: 'hsl(0, 0%, 30%)', label: 'Dim grey' },
+                                { color: 'hsl(0, 0%, 60%)', label: 'Grey' },
+                                { color: 'hsl(0, 0%, 90%)', label: 'Light grey' },
+                                { color: 'hsl(0, 0%, 100%)', label: 'White', hasBorder: true },
+                                { color: 'hsl(0, 75%, 60%)', label: 'Red' },
+                                { color: 'hsl(30, 75%, 60%)', label: 'Orange' },
+                                { color: 'hsl(60, 75%, 60%)', label: 'Yellow' },
+                                { color: 'hsl(90, 75%, 60%)', label: 'Light green' },
+                                { color: 'hsl(120, 75%, 60%)', label: 'Green' },
+                                { color: 'hsl(150, 75%, 60%)', label: 'Aquamarine' },
+                                { color: 'hsl(180, 75%, 60%)', label: 'Turquoise' },
+                                { color: 'hsl(210, 75%, 60%)', label: 'Light blue' },
+                                { color: 'hsl(240, 75%, 60%)', label: 'Blue' },
+                                { color: 'hsl(270, 75%, 60%)', label: 'Purple' }
+                            ]
+                        },
+                        fontBackgroundColor: {
+                            colors: [
+                                { color: 'hsl(0, 0%, 0%)', label: 'Black' },
+                                { color: 'hsl(0, 0%, 30%)', label: 'Dim grey' },
+                                { color: 'hsl(0, 0%, 60%)', label: 'Grey' },
+                                { color: 'hsl(0, 0%, 90%)', label: 'Light grey' },
+                                { color: 'hsl(0, 0%, 100%)', label: 'White', hasBorder: true },
+                                { color: 'hsl(0, 75%, 60%)', label: 'Red' },
+                                { color: 'hsl(30, 75%, 60%)', label: 'Orange' },
+                                { color: 'hsl(60, 75%, 60%)', label: 'Yellow' },
+                                { color: 'hsl(90, 75%, 60%)', label: 'Light green' },
+                                { color: 'hsl(120, 75%, 60%)', label: 'Green' },
+                                { color: 'hsl(150, 75%, 60%)', label: 'Aquamarine' },
+                                { color: 'hsl(180, 75%, 60%)', label: 'Turquoise' },
+                                { color: 'hsl(210, 75%, 60%)', label: 'Light blue' },
+                                { color: 'hsl(240, 75%, 60%)', label: 'Blue' },
+                                { color: 'hsl(270, 75%, 60%)', label: 'Purple' }
+                            ]
+                        },
+                        table: {
+                            contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+                        },
+                        image: {
+                            toolbar: ['imageTextAlternative']
+                        },
+                        codeBlock: {
+                            languages: [
+                                { language: 'plaintext', label: 'Plain text' },
+                                { language: 'c', label: 'C' },
+                                { language: 'cpp', label: 'C++' },
+                                { language: 'css', label: 'CSS' },
+                                { language: 'diff', label: 'Diff' },
+                                { language: 'html', label: 'HTML' },
+                                { language: 'java', label: 'Java' },
+                                { language: 'javascript', label: 'JavaScript' },
+                                { language: 'json', label: 'JSON' },
+                                { language: 'markdown', label: 'Markdown' },
+                                { language: 'php', label: 'PHP' },
+                                { language: 'python', label: 'Python' },
+                                { language: 'sql', label: 'SQL' },
+                                { language: 'xml', label: 'XML' },
+                                { language: 'bash', label: 'Bash' }
+                            ]
+                        },
+                        simpleUpload: {
+                            uploadUrl: `${API_URL}?action=upload_image`,
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        }
+                    }
+                );
+                
+                console.log('Editor initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize editor:', error);
+                alert('编辑器初始化失败，请刷新页面重试');
+            }
         }
 
         async function loadCategories() {
@@ -244,7 +256,7 @@
                     document.getElementById('title').value = data.data.title;
                     document.getElementById('category').value = data.data.category || '';
                     document.getElementById('tags').value = (data.data.tags || []).join(',');
-                    tinymce.get('content').setContent(data.data.content || '');
+                    editor.setData(data.data.content || '');
                 }
             } catch (e) {
                 console.error('Failed to load article:', e);
@@ -253,7 +265,7 @@
 
         async function saveArticle() {
             const title = document.getElementById('title').value.trim();
-            const content = tinymce.get('content').getContent();
+            const content = editor.getData();
             const category = document.getElementById('category').value;
             const tagsStr = document.getElementById('tags').value;
             
