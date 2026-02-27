@@ -2,32 +2,23 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>编辑文章 - 博客系统</title>
+    <title>编辑文章</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CKEditor 5 Super Build -->
     <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
-    <style>
-        .ck-editor__editable { min-height: 500px; }
-        .ck-content pre { background: #f4f4f4; padding: 1em; border-radius: 4px; }
-    </style>
+    <style>.ck-editor__editable{min-height:500px}</style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100">
     <div class="flex h-screen">
-        <aside class="w-64 bg-gray-800 text-white flex-shrink-0">
-            <div class="p-6 border-b border-gray-700">
-                <h1 class="text-xl font-bold"><i class="fas fa-cog"></i> 管理后台</h1>
-            </div>
-            <nav class="p-4 space-y-2 flex-1">
+        <aside class="w-64 bg-gray-800 text-white">
+            <div class="p-6 border-b border-gray-700"><h1 class="text-xl font-bold"><i class="fas fa-cog"></i> 管理后台</h1></div>
+            <nav class="p-4 space-y-2">
                 <a href="index.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg"><i class="fas fa-tachometer-alt"></i> 仪表盘</a>
                 <a href="articles.html" class="block px-4 py-3 bg-blue-600 rounded-lg"><i class="fas fa-file-alt"></i> 文章管理</a>
                 <a href="comments.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg"><i class="fas fa-comments"></i> 评论管理</a>
                 <a href="categories.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg"><i class="fas fa-folder"></i> 分类管理</a>
                 <a href="settings.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg"><i class="fas fa-cog"></i> 系统设置</a>
-                <div class="pt-4 mt-4 border-t border-gray-700">
-                    <button onclick="logout()" class="w-full px-4 py-3 bg-red-600 rounded-lg"><i class="fas fa-sign-out-alt"></i> 退出登录</button>
-                </div>
+                <div class="pt-4 mt-4 border-t"><button onclick="logout()" class="w-full px-4 py-3 bg-red-600 rounded-lg"><i class="fas fa-sign-out-alt"></i> 退出登录</button></div>
             </nav>
         </aside>
         <main class="flex-1 overflow-auto">
@@ -44,10 +35,7 @@
                             <div><label class="block text-sm font-medium mb-2">标签</label><input type="text" id="tags" class="w-full px-4 py-3 border rounded-lg" placeholder="用逗号分隔"></div>
                         </div>
                     </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2">文章内容</label>
-                        <div id="editor"></div>
-                    </div>
+                    <div class="mb-6"><label class="block text-sm font-medium mb-2">文章内容</label><div id="editor"></div></div>
                     <div class="flex justify-end gap-4">
                         <a href="articles.html" class="px-6 py-3 text-gray-600">取消</a>
                         <button onclick="saveArticle()" class="px-8 py-3 bg-blue-600 text-white rounded-lg"><i class="fas fa-save"></i> 保存文章</button>
@@ -56,142 +44,16 @@
             </div>
         </main>
     </div>
-
     <script>
-        const API_URL = '../api.php';
-        let editor;
-        let articleId = null;
-        const token = localStorage.getItem('blog_token');
-        if (!token) window.location.href = 'login.html';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initEditor();
-            loadCategories();
-            const params = new URLSearchParams(window.location.search);
-            articleId = params.get('id');
-            if (articleId) loadArticle(articleId);
-        });
-
-        // 自定义图片上传适配器
-        class MyUploadAdapter {
-            constructor(loader) { this.loader = loader; }
-            upload() {
-                return this.loader.file.then(file => {
-                    return new Promise((resolve, reject) => {
-                        const formData = new FormData();
-                        formData.append('image', file);
-                        fetch(`${API_URL}?action=upload_image`, {
-                            method: 'POST',
-                            headers: { 'Authorization': `Bearer ${token}` },
-                            body: formData
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.code === 200 && data.data && data.data.url) {
-                                resolve({ default: data.data.url });
-                            } else {
-                                reject(data.msg || '上传失败');
-                            }
-                        })
-                        .catch(err => reject(err.message));
-                    });
-                });
-            }
-        }
-
-        function MyUploadAdapterPlugin(editor) {
-            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-                return new MyUploadAdapter(loader);
-            };
-        }
-
-        async function initEditor() {
-            try {
-                // 使用 CKEditor 5 的 create 方法
-                const newEditor = await CKEditorClassicEditor.create(
-                    document.querySelector('#editor'),
-                    {
-                        extraPlugins: [MyUploadAdapterPlugin],
-                        toolbar: [
-                            'heading', '|',
-                            'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
-                            'blockQuote', 'codeBlock', '|',
-                            'imageUpload', '|',
-                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
-                            'undo', 'redo'
-                        ],
-                        codeBlock: {
-                            languages: [
-                                { language: 'plaintext', label: 'Plain text' },
-                                { language: 'javascript', label: 'JavaScript' },
-                                { language: 'python', label: 'Python' },
-                                { language: 'php', label: 'PHP' },
-                                { language: 'java', label: 'Java' },
-                                { language: 'cpp', label: 'C++' },
-                                { language: 'go', label: 'Go' },
-                                { language: 'bash', label: 'Bash' }
-                            ]
-                        }
-                    }
-                );
-                editor = newEditor;
-                console.log('✅ 编辑器初始化成功');
-            } catch (error) {
-                console.error('❌ 编辑器初始化失败:', error);
-                alert('编辑器初始化失败：' + error.message);
-            }
-        }
-
-        async function loadCategories() {
-            const res = await fetch(`${API_URL}?action=get_categories`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const data = await res.json();
-            if (data.code === 200) {
-                const select = document.getElementById('category');
-                data.data.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.id;
-                    option.textContent = `${cat.icon || '📁'} ${cat.name}`;
-                    select.appendChild(option);
-                });
-            }
-        }
-
-        async function loadArticle(id) {
-            const res = await fetch(`${API_URL}?action=get_article&id=${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const data = await res.json();
-            if (data.code === 200) {
-                document.getElementById('title').value = data.data.title;
-                document.getElementById('category').value = data.data.category || '';
-                document.getElementById('tags').value = (data.data.tags || []).join(',');
-                editor.setData(data.data.content || '');
-            }
-        }
-
-        async function saveArticle() {
-            const title = document.getElementById('title').value.trim();
-            const content = editor.getData();
-            const category = document.getElementById('category').value;
-            const tags = document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t);
-            if (!title) { alert('请输入文章标题'); return; }
-            if (!content) { alert('请输入文章内容'); return; }
-            const res = await fetch(`${API_URL}?action=save_article`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ id: articleId, title, content, category, tags })
-            });
-            const data = await res.json();
-            if (data.code === 200) {
-                alert('保存成功');
-                window.location.href = 'articles.html';
-            } else {
-                alert(data.msg || '保存失败');
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('blog_token');
-            window.location.href = 'login.html';
-        }
+        const API_URL='../api.php';let editor;const token=localStorage.getItem('blog_token');if(!token)window.location.href='login.html';
+        class MyUploadAdapter{constructor(loader){this.loader=loader}upload(){return this.loader.file.then(file=>{return new Promise((resolve,reject)=>{const formData=new FormData();formData.append('image',file);fetch(`${API_URL}?action=upload_image`,{method:'POST',headers:{'Authorization':`Bearer ${token}`},body:formData}).then(res=>res.json()).then(data=>{if(data.code===200&&data.data&&data.data.url){resolve({default:data.data.url})}else{reject(data.msg||'上传失败')}}).catch(err=>reject(err.message))})})}}
+        function MyUploadAdapterPlugin(editor){editor.plugins.get('FileRepository').createUploadAdapter=(loader)=>{return new MyUploadAdapter(loader)}}
+        ClassicEditor.create(document.querySelector('#editor'),{extraPlugins:[MyUploadAdapterPlugin],toolbar:['heading','|','bold','italic','link','bulletedList','numberedList','|','blockQuote','codeBlock','|','imageUpload','|','fontSize','fontFamily','fontColor','fontBackgroundColor','|','undo','redo'],codeBlock:{languages:[{language:'plaintext',label:'Plain text'},{language:'javascript',label:'JavaScript'},{language:'python',label:'Python'},{language:'php',label:'PHP'},{language:'java',label:'Java'},{language:'cpp',label:'C++'},{language:'go',label:'Go'},{language:'bash',label:'Bash'}]}}).then(ed=>{editor=ed;console.log('✅OK')}).catch(err=>{console.error('❌Error:',err);alert('编辑器初始化失败：'+err.message)});
+        async function loadCategories(){const res=await fetch(`${API_URL}?action=get_categories`,{headers:{'Authorization':`Bearer ${token}`}});const data=await res.json();if(data.code===200){const select=document.getElementById('category');data.data.forEach(cat=>{const option=document.createElement('option');option.value=cat.id;option.textContent=`${cat.icon||'📁'} ${cat.name}`;select.appendChild(option)})}}
+        async function loadArticle(id){const res=await fetch(`${API_URL}?action=get_article&id=${id}`,{headers:{'Authorization':`Bearer ${token}`}});const data=await res.json();if(data.code===200){document.getElementById('title').value=data.data.title;document.getElementById('category').value=data.data.category||'';document.getElementById('tags').value=(data.data.tags||[]).join(',');editor.setData(data.data.content||'')}}
+        async function saveArticle(){const title=document.getElementById('title').value.trim();const content=editor.getData();const category=document.getElementById('category').value;const tags=document.getElementById('tags').value.split(',').map(t=>t.trim()).filter(t=>t);if(!title){alert('请输入文章标题');return}if(!content){alert('请输入文章内容');return}const res=await fetch(`${API_URL}?action=save_article`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({id:null,title,content,category,tags})});const data=await res.json();if(data.code===200){alert('保存成功');window.location.href='articles.html'}else{alert(data.msg||'保存失败')}}
+        function logout(){localStorage.removeItem('blog_token');window.location.href='login.html'}
+        loadCategories();
     </script>
 </body>
 </html>
