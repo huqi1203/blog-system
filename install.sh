@@ -1,6 +1,8 @@
 #!/bin/bash
 # Blog System V2 - 一键安装脚本
-# 用法：curl -fsSL https://raw.githubusercontent.com/huqi1203/blog-system/main/install.sh | bash
+# 用法：
+#   GitHub: curl -fsSL https://raw.githubusercontent.com/huqi1203/blog-system/main/install.sh | bash
+#   Gitee:  curl -fsSL https://gitee.com/huqi1203/blog-system/raw/main/install.sh | bash
 
 set -e
 
@@ -16,6 +18,22 @@ fi
 if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
     echo "❌ 未检测到 Docker Compose，请先安装"
     exit 1
+fi
+
+# 选择镜像源
+echo ""
+echo "📦 选择代码源:"
+echo "  1) GitHub (https://github.com)"
+echo "  2) Gitee (https://gitee.com) - 国内推荐"
+read -p "请选择 (默认 2): " source_choice
+source_choice=${source_choice:-2}
+
+if [ "$source_choice" = "1" ]; then
+    REPO_URL="https://github.com/huqi1203/blog-system.git"
+    echo "✅ 使用 GitHub 作为代码源"
+else
+    REPO_URL="https://gitee.com/huqi1203/blog-system.git"
+    echo "✅ 使用 Gitee 作为代码源"
 fi
 
 # 创建项目目录
@@ -34,7 +52,7 @@ fi
 
 # 克隆项目
 echo "📦 克隆项目..."
-git clone https://github.com/huqi1203/blog-system.git "$PROJECT_DIR"
+git clone "$REPO_URL" "$PROJECT_DIR"
 cd "$PROJECT_DIR"
 
 # 创建数据目录
