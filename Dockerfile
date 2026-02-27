@@ -12,10 +12,10 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . /var/www/html/
 
-# Create data directory with proper permissions
-RUN mkdir -p /var/www/html/data && \
-    chown -R www-data:www-data /var/www/html/data && \
-    chmod -R 755 /var/www/html/data
+# Create data and uploads directories with proper permissions
+RUN mkdir -p /var/www/html/data /var/www/html/uploads && \
+    chown -R www-data:www-data /var/www/html/data /var/www/html/uploads && \
+    chmod -R 755 /var/www/html/data /var/www/html/uploads
 
 # Configure Apache to allow .htaccess and set proper permissions
 RUN echo '<Directory /var/www/html>\n\

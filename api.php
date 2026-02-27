@@ -538,6 +538,12 @@ try {
             $result['data'] = $newCfg;
             break;
             
+        // ==================== IMAGE UPLOAD ====================
+        case 'upload_image':
+            requireAuth();
+            $result = handleImageUpload();
+            break;
+            
         // ==================== STATISTICS ====================
         case 'get_stats':
             requireAdmin();
@@ -604,6 +610,65 @@ try {
 } catch (Exception $e) {
     $result['code'] = 500;
     $result['msg'] = '服务器错误: ' . $e->getMessage();
+}
+
+
+// Image Upload Handler
+function handleImageUpload() {
+    // Upload to web-accessible directory
+    $uploadDir = __DIR__ . '/uploads/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+    
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        return [
+            'code' => 400,
+            'msg' => '没有收到图片或上传失败',
+            'data' => null
+        ];
+    }
+    
+    $file = $_FILES['image'];
+    
+    // Validate file type
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
+    if (!in_array($mimeType, $allowedTypes)) {
+        return [
+            'code' => 400,
+            'msg' => '不支持的图片格式，请使用 JPG, PNG, GIF 或 WebP',
+            'data' => null
+        ];
+    }
+    
+    // Generate unique filename
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $newFilename = uniqid('img_') . '.' . $extension;
+    $targetPath = $uploadDir . $newFilename;
+    
+    // Move uploaded file
+    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+        $url = '/uploads/' . $newFilename;
+        return [
+            'code' => 200,
+            'msg' => '上传成功',
+            'data' => [
+                'url' => $url,
+                'filename' => $newFilename,
+                'size' => $file['size']
+            ]
+        ];
+    } else {
+        return [
+            'code' => 500,
+            'msg' => '保存文件失败',
+            'data' => null
+        ];
+    }
 }
 
 echo json_encode($result, JSON_UNESCAPED_UNICODE);
