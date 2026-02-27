@@ -6,9 +6,9 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- EasyMDE -->
-    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
-    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <!-- Vditor 编辑器 -->
+    <link rel="stylesheet" href="https://unpkg.com/vditor@3.10.5/dist/index.css" />
+    <script src="https://unpkg.com/vditor@3.10.5/dist/index.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="flex h-screen">
@@ -53,7 +53,7 @@
             </header>
 
             <div class="p-8">
-                <div class="bg-white rounded-2xl shadow-md p-6 max-w-5xl">
+                <div class="bg-white rounded-2xl shadow-md p-6 max-w-6xl">
                     <div class="space-y-4 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">文章标题</label>
@@ -78,7 +78,7 @@
 
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">文章内容</label>
-                        <textarea id="content"></textarea>
+                        <div id="vditor"></div>
                     </div>
 
                     <div class="flex justify-end gap-4">
@@ -94,7 +94,7 @@
 
     <script>
         const API_URL = '../api.php';
-        let easyMDE;
+        let vditor;
         let articleId = null;
         const token = localStorage.getItem('blog_token');
         if (!token) window.location.href = 'login.html';
@@ -113,42 +113,62 @@
         });
 
         function initEditor() {
-            easyMDE = new EasyMDE({
-                element: document.getElementById('content'),
-                spellChecker: false,
-                autofocus: true,
+            vditor = new Vditor('vditor', {
+                height: 600,
+                mode: 'ir', // 即时渲染模式
                 placeholder: '开始写作...',
+                lang: 'zh_CN',
+                theme: 'classic',
+                icon: 'material',
+                cache: {
+                    enable: false
+                },
                 toolbar: [
-                    'bold', 'italic', 'heading', '|',
-                    'code', 'quote', 'unordered-list', 'ordered-list', '|',
-                    'link', 'image', 'table', '|',
-                    'preview', 'side-by-side', 'fullscreen', '|',
-                    'guide'
+                    'emoji', 'headings', 'bold', 'italic', 'strike', 'link', '|',
+                    'list', 'ordered-list', 'check', 'outdent', 'indent', '|',
+                    'quote', 'line', 'code', 'inline-code', 'insert-before', 'insert-after', '|',
+                    'upload', 'record', 'table', '|',
+                    'undo', 'redo', '|',
+                    'edit-mode', 'content-theme', 'code-theme', 'export', '|',
+                    'fullscreen', 'preview', 'outline', 'both', '|',
+                    'devtools', 'info', 'help', '|',
+                    'br'
                 ],
-                status: ['lines', 'words', 'cursor'],
-                minHeight: '400px',
-                imageUploadFunction: function(file, onSuccess, onError) {
-                    const formData = new FormData();
-                    formData.append('image', file);
-                    
-                    fetch(`${API_URL}?action=upload_image`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: formData
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.code === 200 && data.data && data.data.url) {
-                            onSuccess(data.data.url);
-                        } else {
-                            onError('上传失败：' + (data.msg || '未知错误'));
-                        }
-                    })
-                    .catch(err => {
-                        onError('上传失败：' + err.message);
-                    });
+                upload: {
+                    accept: 'image/*,.mp3, .wav, .rar',
+                    token: token,
+                    url: `${API_URL}?action=upload_image`,
+                    linkToImgPrefix: API_URL.replace('api.php', ''),
+                    handler: function(files) {
+                        return new Promise((resolve, reject) => {
+                            const formData = new FormData();
+                            formData.append('image', files[0]);
+                            
+                            fetch(`${API_URL}?action=upload_image`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.code === 200 && data.data && data.data.url) {
+                                    resolve(data.data.url);
+                                } else {
+                                    reject(data.msg || '上传失败');
+                                }
+                            })
+                            .catch(err => {
+                                reject(err.message);
+                            });
+                        });
+                    }
+                },
+                preview: {
+                    theme: {
+                        current: 'light'
+                    }
                 }
             });
         }
@@ -183,7 +203,7 @@
                     document.getElementById('title').value = data.data.title;
                     document.getElementById('category').value = data.data.category || '';
                     document.getElementById('tags').value = (data.data.tags || []).join(',');
-                    easyMDE.value(data.data.content || '');
+                    vditor.setValue(data.data.content || '');
                 }
             } catch (e) {
                 console.error('Failed to load article:', e);
@@ -192,7 +212,7 @@
 
         async function saveArticle() {
             const title = document.getElementById('title').value.trim();
-            const content = easyMDE.value();
+            const content = vditor.getValue();
             const category = document.getElementById('category').value;
             const tagsStr = document.getElementById('tags').value;
             
