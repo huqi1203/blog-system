@@ -6,7 +6,7 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ckeditor5@41.4.2/build/ckeditor.min.js"></script>
     <style>
         .ck-editor__editable { min-height: 500px; }
     </style>
@@ -119,7 +119,7 @@
 
         async function initEditor() {
             try {
-                editor = await ClassicEditor.create(
+                editor = await window.CKEditor.ClassicEditor.create(
                     document.querySelector('#editor'),
                     {
                         extraPlugins: [MyUploadAdapterPlugin],
