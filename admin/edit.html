@@ -6,8 +6,8 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CKEditor 5 富文本编辑器 -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <!-- CKEditor 5 富文本编辑器（完整构建，包含所有插件） -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
     <style>
         .ck-editor__editable {
             min-height: 500px;
@@ -126,7 +126,7 @@
             }
         });
 
-        // 自定义上传适配器
+        // 自定义上传适配器 - 支持 PNG/JPG/GIF 等所有图片格式
         class MyUploadAdapter {
             constructor(loader) {
                 this.loader = loader;
@@ -134,9 +134,13 @@
 
             upload() {
                 return this.loader.file.then(file => {
+                    console.log('准备上传图片:', file.name, file.type, file.size);
+                    
                     return new Promise((resolve, reject) => {
                         const formData = new FormData();
                         formData.append('image', file);
+                        
+                        console.log('开始上传图片...');
                         
                         fetch(`${API_URL}?action=upload_image`, {
                             method: 'POST',
@@ -145,15 +149,22 @@
                             },
                             body: formData
                         })
-                        .then(res => res.json())
+                        .then(res => {
+                            console.log('上传响应状态:', res.status);
+                            return res.json();
+                        })
                         .then(data => {
+                            console.log('上传响应数据:', data);
                             if (data.code === 200 && data.data && data.data.url) {
+                                console.log('上传成功:', data.data.url);
                                 resolve({ default: data.data.url });
                             } else {
+                                console.error('上传失败:', data.msg);
                                 reject(data.msg || '上传失败');
                             }
                         })
                         .catch(err => {
+                            console.error('上传错误:', err);
                             reject(err.message);
                         });
                     });
