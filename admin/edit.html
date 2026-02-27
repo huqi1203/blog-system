@@ -6,9 +6,12 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Vditor 编辑器 -->
-    <link rel="stylesheet" href="https://unpkg.com/vditor@3.10.5/dist/index.css" />
-    <script src="https://unpkg.com/vditor@3.10.5/dist/index.min.js"></script>
+    <!-- TinyMCE 富文本编辑器 -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- PrismJS 代码高亮和复制 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="flex h-screen">
@@ -78,7 +81,7 @@
 
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">文章内容</label>
-                        <div id="vditor"></div>
+                        <textarea id="content"></textarea>
                     </div>
 
                     <div class="flex justify-end gap-4">
@@ -94,7 +97,6 @@
 
     <script>
         const API_URL = '../api.php';
-        let vditor;
         let articleId = null;
         const token = localStorage.getItem('blog_token');
         if (!token) window.location.href = 'login.html';
@@ -113,36 +115,47 @@
         });
 
         function initEditor() {
-            vditor = new Vditor('vditor', {
+            tinymce.init({
+                selector: '#content',
+                language: 'zh_CN',
                 height: 600,
-                mode: 'ir', // 即时渲染模式
-                placeholder: '开始写作...',
-                lang: 'zh_CN',
-                theme: 'classic',
-                icon: 'material',
-                cache: {
-                    enable: false
-                },
-                toolbar: [
-                    'emoji', 'headings', 'bold', 'italic', 'strike', 'link', '|',
-                    'list', 'ordered-list', 'check', 'outdent', 'indent', '|',
-                    'quote', 'line', 'code', 'inline-code', 'insert-before', 'insert-after', '|',
-                    'upload', 'record', 'table', '|',
-                    'undo', 'redo', '|',
-                    'edit-mode', 'content-theme', 'code-theme', 'export', '|',
-                    'fullscreen', 'preview', 'outline', 'both', '|',
-                    'devtools', 'info', 'help', '|',
-                    'br'
+                menubar: true,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'emoticons', 'wordcount',
+                    'paste', 'help', 'directionality', 'nonbreaking',
+                    'codesample'
                 ],
-                upload: {
-                    accept: 'image/*,.mp3, .wav, .rar',
-                    token: token,
-                    url: `${API_URL}?action=upload_image`,
-                    linkToImgPrefix: API_URL.replace('api.php', ''),
-                    handler: function(files) {
-                        return new Promise((resolve, reject) => {
+                toolbar: 'undo redo | blocks fontfamily fontsize | ' +
+                    'bold italic forecolor backcolor | ' +
+                    'alignleft aligncenter alignright alignjustify | ' +
+                    'bullist numlist outdent indent | ' +
+                    'link image media table codesample | ' +
+                    'removeformat | fullscreen preview code',
+                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 16px; }',
+                image_title: true,
+                automatic_uploads: true,
+                file_picker_types: 'image',
+                file_picker_callback: function(cb, value, meta) {
+                    const input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    input.setAttribute('accept', 'image/*');
+                    
+                    input.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        
+                        reader.addEventListener('load', () => {
+                            const id = 'blobid' + (new Date()).getTime();
+                            const blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                            const base64 = reader.result.split(',')[1];
+                            const blobInfo = blobCache.create(id, file, base64);
+                            blobCache.add(blobInfo);
+                            
+                            // 上传到服务器
                             const formData = new FormData();
-                            formData.append('image', files[0]);
+                            formData.append('image', file);
                             
                             fetch(`${API_URL}?action=upload_image`, {
                                 method: 'POST',
@@ -154,22 +167,50 @@
                             .then(res => res.json())
                             .then(data => {
                                 if (data.code === 200 && data.data && data.data.url) {
-                                    resolve(data.data.url);
+                                    cb(data.data.url, { alt: file.name });
                                 } else {
-                                    reject(data.msg || '上传失败');
+                                    alert('上传失败：' + (data.msg || '未知错误'));
                                 }
                             })
                             .catch(err => {
-                                reject(err.message);
+                                alert('上传失败：' + err.message);
                             });
                         });
-                    }
+                        
+                        reader.readAsDataURL(file);
+                    });
+                    
+                    input.click();
                 },
-                preview: {
-                    theme: {
-                        current: 'light'
-                    }
-                }
+                paste_data_images: true,
+                paste_preprocess: function(plugin, args) {
+                    // 处理粘贴的内容
+                },
+                setup: function(editor) {
+                    editor.on('paste', function(e) {
+                        // 处理粘贴事件
+                    });
+                },
+                codesample_languages: [
+                    {text: 'HTML/XML', value: 'markup'},
+                    {text: 'JavaScript', value: 'javascript'},
+                    {text: 'CSS', value: 'css'},
+                    {text: 'PHP', value: 'php'},
+                    {text: 'Python', value: 'python'},
+                    {text: 'Java', value: 'java'},
+                    {text: 'C', value: 'c'},
+                    {text: 'C++', value: 'cpp'},
+                    {text: 'C#', value: 'csharp'},
+                    {text: 'Go', value: 'go'},
+                    {text: 'Rust', value: 'rust'},
+                    {text: 'SQL', value: 'sql'},
+                    {text: 'Bash', value: 'bash'},
+                    {text: 'JSON', value: 'json'},
+                    {text: 'Markdown', value: 'markdown'}
+                ],
+                toolbar_mode: 'wrap',
+                contextmenu: 'link image table codesample',
+                branding: false
             });
         }
 
@@ -203,7 +244,7 @@
                     document.getElementById('title').value = data.data.title;
                     document.getElementById('category').value = data.data.category || '';
                     document.getElementById('tags').value = (data.data.tags || []).join(',');
-                    vditor.setValue(data.data.content || '');
+                    tinymce.get('content').setContent(data.data.content || '');
                 }
             } catch (e) {
                 console.error('Failed to load article:', e);
@@ -212,7 +253,7 @@
 
         async function saveArticle() {
             const title = document.getElementById('title').value.trim();
-            const content = vditor.getValue();
+            const content = tinymce.get('content').getContent();
             const category = document.getElementById('category').value;
             const tagsStr = document.getElementById('tags').value;
             
