@@ -544,6 +544,40 @@ try {
             $result = handleImageUpload();
             break;
             
+        // ==================== CHANGE PASSWORD ====================
+        case 'save_pwd':
+            $currentUser = requireAuth();
+            $current = $input['current'] ?? '';
+            $newPwd = $input['new'] ?? '';
+            
+            $users = getJson($files['users']);
+            $user = null;
+            $userIndex = -1;
+            foreach ($users as $i => $u) {
+                if ($u['id'] === $currentUser['id']) {
+                    $user = $u;
+                    $userIndex = $i;
+                    break;
+                }
+            }
+            
+            if (!$user || !password_verify($current, $user['password'])) {
+                $result['code'] = 401;
+                $result['msg'] = '当前密码错误';
+                break;
+            }
+            
+            if (strlen($newPwd) < 6) {
+                $result['code'] = 400;
+                $result['msg'] = '密码至少 6 位';
+                break;
+            }
+            
+            $users[$userIndex]['password'] = password_hash($newPwd, PASSWORD_DEFAULT);
+            saveJson($files['users'], $users);
+            $result['msg'] = '密码已修改';
+            break;
+            
         // ==================== STATISTICS ====================
         case 'get_stats':
             requireAdmin();

@@ -6,132 +6,100 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!-- EasyMDE -->
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
-    <style>
-        * { font-family: 'Noto Sans SC', sans-serif; }
-        
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .dark .glass-nav {
-            background: rgba(26, 26, 26, 0.95);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        /* EasyMDE Dark Mode */
-        .dark .EasyMDEContainer .CodeMirror {
-            background: #1f2937;
-            color: #e5e7eb;
-            border-color: #374151;
-        }
-        .dark .EasyMDEContainer .editor-toolbar {
-            background: #1f2937;
-            border-color: #374151;
-        }
-        .dark .EasyMDEContainer .editor-toolbar button {
-            color: #9ca3af;
-        }
-        .dark .EasyMDEContainer .editor-toolbar button:hover {
-            background: #374151;
-            color: #f3f4f6;
-        }
-        .dark .EasyMDEContainer .editor-preview {
-            background: #111827;
-            color: #e5e7eb;
-        }
-        .dark .EasyMDEContainer .CodeMirror-cursor {
-            border-color: #f3f4f6;
-        }
-        
-        /* Dark mode */
-        .dark body { background-color: #111827; color: #e5e7eb; }
-        .dark .bg-white { background-color: #1f2937; }
-        .dark .text-gray-800 { color: #f3f4f6; }
-        .dark .text-gray-600 { color: #9ca3af; }
-        .dark .bg-gray-50 { background-color: #111827; }
-        .dark .bg-gray-100 { background-color: #374151; }
-    </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-    <!-- Navigation -->
-    <nav class="glass-nav sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="flex justify-between items-center h-16">
-                <a href="index.html" class="flex items-center gap-2 group">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition">B</div>
-                    <span class="font-bold text-gray-800 dark:text-white">我的博客</span>
+<body class="bg-gray-100 min-h-screen">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-800 text-white flex-shrink-0 flex flex-col h-screen">
+            <div class="p-6 border-b border-gray-700">
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fas fa-cog"></i> 管理后台
+                </h1>
+            </div>
+            <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
+                <a href="index.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
+                    <i class="fas fa-tachometer-alt"></i> 仪表盘
                 </a>
-                <div class="flex items-center gap-4">
-                    <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300">
-                        <i class="fas fa-moon dark:hidden"></i>
-                        <i class="fas fa-sun hidden dark:block"></i>
+                <a href="articles.html" class="block px-4 py-3 bg-blue-600 rounded-lg flex items-center gap-3">
+                    <i class="fas fa-file-alt"></i> 文章管理
+                </a>
+                <a href="comments.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
+                    <i class="fas fa-comments"></i> 评论管理
+                </a>
+                <a href="categories.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
+                    <i class="fas fa-folder"></i> 分类管理
+                </a>
+                <a href="settings.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
+                    <i class="fas fa-cog"></i> 系统设置
+                </a>
+                <div class="pt-4 mt-4 border-t border-gray-700">
+                    <button onclick="logout()" class="w-full px-4 py-3 bg-red-600/80 hover:bg-red-600 rounded-lg flex items-center gap-3 transition">
+                        <i class="fas fa-sign-out-alt"></i> 退出登录
                     </button>
-                    <a href="articles.html" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white">取消</a>
                 </div>
-            </div>
-        </div>
-    </nav>
+            </nav>
+        </aside>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-            <!-- Article Info -->
-            <div class="space-y-4 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">文章标题</label>
-                    <input type="text" id="title" placeholder="请输入文章标题" 
-                           class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-lg font-medium">
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">分类</label>
-                        <select id="category" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                            <option value="">选择分类</option>
-                        </select>
+        <!-- Main Content -->
+        <main class="flex-1 overflow-auto">
+            <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">编辑文章</h2>
+                <a href="articles.html" class="text-gray-600 hover:text-blue-600">
+                    <i class="fas fa-arrow-left"></i> 返回列表
+                </a>
+            </header>
+
+            <div class="p-8">
+                <div class="bg-white rounded-2xl shadow-md p-6 max-w-5xl">
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">文章标题</label>
+                            <input type="text" id="title" placeholder="请输入文章标题" 
+                                   class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">分类</label>
+                                <select id="category" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">选择分类</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">标签（用逗号分隔）</label>
+                                <input type="text" id="tags" placeholder="技术，教程，生活" 
+                                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">标签（用逗号分隔）</label>
-                        <input type="text" id="tags" placeholder="技术,教程,生活" 
-                               class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">文章内容</label>
+                        <textarea id="content"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-4">
+                        <a href="articles.html" class="px-6 py-3 text-gray-600 hover:text-gray-800 transition">取消</a>
+                        <button onclick="saveArticle()" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                            <i class="fas fa-save"></i> 保存文章
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Editor -->
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">文章内容</label>
-                <textarea id="content"></textarea>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex justify-end gap-4">
-                <a href="articles.html" class="px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition">取消</a>
-                <button onclick="saveArticle()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2">
-                    <i class="fas fa-save"></i>保存文章
-                </button>
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
         const API_URL = '../api.php';
         let easyMDE;
         let articleId = null;
-
-        // Check auth
         const token = localStorage.getItem('blog_token');
         if (!token) window.location.href = 'login.html';
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            initDarkMode();
             initEditor();
             loadCategories();
             
@@ -143,17 +111,6 @@
                 loadArticle(articleId);
             }
         });
-
-        function initDarkMode() {
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.documentElement.classList.add('dark');
-            }
-        }
-
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
-        }
 
         function initEditor() {
             easyMDE = new EasyMDE({
@@ -263,6 +220,11 @@
             } catch (e) {
                 alert('保存失败');
             }
+        }
+
+        function logout() {
+            localStorage.removeItem('blog_token');
+            window.location.href = 'login.html';
         }
     </script>
 </body>
