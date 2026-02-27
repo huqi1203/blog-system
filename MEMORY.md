@@ -11,36 +11,42 @@
   - 文章分类与标签
   - 评论系统（支持审核）
   - 统计图表（Chart.js）
-- 修复问题：
-  - 密码修改功能（API 添加 save_pwd 接口）
-  - 图片上传功能（/uploads/ 目录）
-  - 统一左侧导航栏布局
+- 已修复问题：
+  - ✅ 密码修改功能（API 添加 save_pwd 接口）
+  - ✅ 图片上传功能（/uploads/ 目录）
+  - ✅ 统一左侧导航栏布局
+  - ✅ 退出登录按钮位置（所有页面）
 
-### Gitee 仓库配置
+### Gitee 仓库配置（唯一主仓库）
 - **主仓库**: https://gitee.com/huqi1203/blog-system
-- **备份仓库**: https://github.com/huqi1203/blog-system
+- **GitHub 仓库**: ❌ 不再使用
 - **默认推送**: Gitee（国内访问速度快）
-- **双平台同步**: 代码同时推送到 GitHub 和 Gitee
-- **一键安装**:
-  - Gitee: `curl -fsSL https://gitee.com/huqi1203/blog-system/raw/main/install.sh | bash`
-  - GitHub: `curl -fsSL https://raw.githubusercontent.com/huqi1203/blog-system/main/install.sh | bash`
+- **一键安装命令**（Gitee）:
+  ```bash
+  curl -fsSL https://gitee.com/huqi1203/blog-system/raw/main/install.sh | bash
+  ```
+- **手动克隆**（Gitee）:
+  ```bash
+  git clone https://gitee.com/huqi1203/blog-system.git
+  ```
 
 ### Gitee API Token
 - Token: `c655aa07ff456785cbfdfe6d5d828c90`
-- 用途：自动化创建仓库、推送代码
+- 用途：自动化创建仓库、推送代码、API 访问
 - 权限：projects（仓库管理）
 
-### 用户偏好（2026-02-27 更新）
-- **默认仓库**: Gitee (https://gitee.com/huqi1203/blog-system)
+### 用户偏好和开发规范（2026-02-27 更新）
+- **唯一仓库**: Gitee (https://gitee.com/huqi1203/blog-system)
+- **GitHub**: ❌ 不再使用，不再同步
 - **原因**: 国内访问速度快，GitHub 网络不稳定
-- **策略**: 双平台备份（Gitee 为主，GitHub 为辅）
+- **所有新开发内容**: 只提交到 Gitee
+- **README 和文档**: 只使用 Gitee 链接
 - **推送命令**:
   ```bash
   cd /root/.openclaw/workspace
   git add -A
   git commit -m "更新内容"
-  git push gitee main    # 推送到 Gitee（默认）
-  git push origin main   # 推送到 GitHub（备份）
+  git push gitee main    # 推送到 Gitee（唯一）
   ```
 
 ---
