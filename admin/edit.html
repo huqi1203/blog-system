@@ -7,7 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CKEditor 5 富文本编辑器 -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <style>
+        .ck-editor__editable {
+            min-height: 500px;
+        }
+        .ck-content pre {
+            background: #f4f4f4;
+            padding: 1em;
+            border-radius: 4px;
+            overflow-x: auto;
+            position: relative;
+        }
+        .ck-content pre code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="flex h-screen">
@@ -77,7 +92,7 @@
 
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">文章内容</label>
-                        <div id="editor"></div>
+                        <textarea id="editor"></textarea>
                     </div>
 
                     <div class="flex justify-end gap-4">
@@ -111,12 +126,53 @@
             }
         });
 
+        // 自定义上传适配器
+        class MyUploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+            }
+
+            upload() {
+                return this.loader.file.then(file => {
+                    return new Promise((resolve, reject) => {
+                        const formData = new FormData();
+                        formData.append('image', file);
+                        
+                        fetch(`${API_URL}?action=upload_image`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.code === 200 && data.data && data.data.url) {
+                                resolve({ default: data.data.url });
+                            } else {
+                                reject(data.msg || '上传失败');
+                            }
+                        })
+                        .catch(err => {
+                            reject(err.message);
+                        });
+                    });
+                });
+            }
+        }
+
+        function MyUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                return new MyUploadAdapter(loader);
+            };
+        }
+
         async function initEditor() {
             try {
                 editor = await ClassicEditor.create(
                     document.querySelector('#editor'),
                     {
-                        licenseKey: '', // 开源版本，免费
+                        extraPlugins: [MyUploadAdapterPlugin],
                         language: 'zh-cn',
                         toolbar: [
                             'heading', '|',
@@ -209,19 +265,13 @@
                                 { language: 'xml', label: 'XML' },
                                 { language: 'bash', label: 'Bash' }
                             ]
-                        },
-                        simpleUpload: {
-                            uploadUrl: `${API_URL}?action=upload_image`,
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
                         }
                     }
                 );
                 
-                console.log('Editor initialized successfully');
+                console.log('编辑器初始化成功');
             } catch (error) {
-                console.error('Failed to initialize editor:', error);
+                console.error('编辑器初始化失败:', error);
                 alert('编辑器初始化失败，请刷新页面重试');
             }
         }
