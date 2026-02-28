@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>编码测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            font-size: 18px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>UTF-8 编码测试页面</h1>
+    <p>如果你能看到这段中文，说明编码正常。</p>
+    <h2>测试内容</h2>
+    <ul>
+        <li>博客系统</li>
+        <li>编辑文章</li>
+        <li>用户管理</li>
+        <li>分类管理</li>
+        <li>评论管理</li>
+    </ul>
+    <h2>特殊字符测试</h2>
+    <p>《》【】、！。，（）</p>
+    <hr>
+    <p id="result">测试中...</p>
+    <script>
+        document.getElementById('result').innerHTML = '<span class="success">✅ JavaScript 执行成功，中文显示正常！</span>';
+    </script>
+</body>
+</html>
