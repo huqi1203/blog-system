@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除浏览器缓存指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .step { counter-increment: step; }
+        .step::before { content: counter(step); display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #3b82f6; color: white; border-radius: 50%; margin-right: 10px; font-weight: bold; font-size: 14px; }
+        .browser-section { counter-reset: step; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-3xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">🔧 清除浏览器缓存指南</h1>
+        <p class="text-center text-gray-600 mb-8">如果页面显示乱码，请按照以下步骤清除浏览器缓存</p>
+        
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+            <p class="text-yellow-700"><strong>⚡ 快捷方法：</strong> 按 <kbd class="bg-gray-200 px-2 py-1 rounded">Ctrl + Shift + R</kbd> (Windows) 或 <kbd class="bg-gray-200 px-2 py-1 rounded">Cmd + Shift + R</kbd> (Mac) 强制刷新页面</p>
+        </div>
+
+        <!-- Chrome -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6 browser-section">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <img src="https://www.google.com/chrome/static/images/chrome-logo.svg" alt="Chrome" class="w-6 h-6 mr-2">
+                Google Chrome
+            </h2>
+            <div class="space-y-3 text-gray-700">
+                <p class="step">按 <kbd class="bg-gray-100 px-2 py-1 rounded border">Ctrl + Shift + Delete</kbd> (Windows) 或 <kbd class="bg-gray-100 px-2 py-1 rounded border">Cmd + Shift + Delete</kbd> (Mac)</p>
+                <p class="step">选择时间范围：<strong>"过去 1 小时"</strong> 或 <strong>"过去 24 小时"</strong></p>
+                <p class="step">勾选 <strong>"缓存的图片和文件"</strong></p>
+                <p class="step">点击 <strong>"清除数据"</strong></p>
+            </div>
+        </div>
+
+        <!-- Firefox -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6 browser-section">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <img src="https://www.mozilla.org/media/protocol/img/logos/firefox/browser/logo-lg.png" alt="Firefox" class="w-6 h-6 mr-2">
+                Mozilla Firefox
+            </h2>
+            <div class="space-y-3 text-gray-700">
+                <p class="step">按 <kbd class="bg-gray-100 px-2 py-1 rounded border">Ctrl + Shift + Delete</kbd> (Windows) 或 <kbd class="bg-gray-100 px-2 py-1 rounded border">Cmd + Shift + Delete</kbd> (Mac)</p>
+                <p class="step">选择 <strong>"缓存"</strong></p>
+                <p class="step">点击 <strong>"立即清除"</strong></p>
+            </div>
+        </div>
+
+        <!-- Safari -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6 browser-section">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <span class="text-2xl mr-2">🧭</span>
+                Apple Safari
+            </h2>
+            <div class="space-y-3 text-gray-700">
+                <p class="step">点击菜单栏 <strong>"开发"</strong> → <strong>"清空缓存"</strong></p>
+                <p class="step">如果没有"开发"菜单：设置 → 高级 → 勾选"在菜单栏中显示开发菜单"</p>
+                <p class="step">或者按 <kbd class="bg-gray-100 px-2 py-1 rounded border">Cmd + Option + E</kbd></p>
+            </div>
+        </div>
+
+        <!-- Edge -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6 browser-section">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <img src="https://img.icons8.com/color/48/ms-edge-new.png" alt="Edge" class="w-6 h-6 mr-2">
+                Microsoft Edge
+            </h2>
+            <div class="space-y-3 text-gray-700">
+                <p class="step">按 <kbd class="bg-gray-100 px-2 py-1 rounded border">Ctrl + Shift + Delete</kbd></p>
+                <p class="step">选择 <strong>"缓存的图片和文件"</strong></p>
+                <p class="step">点击 <strong>"立即清除"</strong></p>
+            </div>
+        </div>
+
+        <!-- 手机浏览器 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6 browser-section">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <span class="text-2xl mr-2">📱</span>
+                手机浏览器
+            </h2>
+            <div class="space-y-3 text-gray-700">
+                <p class="step"><strong>Chrome (Android):</strong> 设置 → 隐私和安全 → 清除浏览数据</p>
+                <p class="step"><strong>Safari (iOS):</strong> 设置 → Safari → 清除历史记录与网站数据</p>
+                <p class="step"><strong>微信内置浏览器:</strong> 我 → 设置 → 通用 → 清空聊天记录 → 或直接卸载重装微信</p>
+            </div>
+        </div>
+
+        <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+            <p class="text-green-700"><strong>✅ 清除后：</strong> 请重新访问 <a href="/" class="text-green-600 underline">首页</a> 或 <a href="/admin/" class="text-green-600 underline">管理后台</a></p>
+        </div>
+
+        <div class="text-center text-gray-500 text-sm">
+            <p>如有问题请联系管理员</p>
+        </div>
+    </div>
+</body>
+</html>
