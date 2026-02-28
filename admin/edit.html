@@ -118,7 +118,7 @@
         const token = localStorage.getItem('blog_token');
         if (!token) window.location.href = 'login.html';
 
-        // 检查 CKEditor 是否加载成功
+        // 检查 CKEditor 是否加载成功 (CDN 使用 CKEDITOR 全大写)
         const { ClassicEditor, Alignment, AutoImage, BlockQuote, Bold, Code, CodeBlock,
                 Essentials, FontBackgroundColor, FontColor, FontFamily, FontSize,
                 Heading, Highlight, HorizontalLine, Image, ImageCaption, ImageInsert,
@@ -127,7 +127,7 @@
                 Paragraph, PasteFromOffice, PictureEditing, RemoveFormat, SourceEditing,
                 SpecialCharacters, Strikethrough, Subscript, Superscript, Table,
                 TableCaption, TableCellProperties, TableColumnResize, TableProperties,
-                TableToolbar, TextTransformation, Underline, WordCount } = CKEditor;
+                TableToolbar, TextTransformation, Underline, WordCount } = CKEDITOR;
 
         console.log('CKEditor 5 Superbuild loaded');
 
