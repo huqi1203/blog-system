@@ -25,6 +25,10 @@ RUN echo '<Directory /var/www/html>\n\
 </Directory>' > /etc/apache2/conf-available/custom.conf && \
     a2enconf custom
 
+# Set UTF-8 charset for all text files (fix Chinese encoding issues)
+RUN echo 'AddDefaultCharset UTF-8\n\
+AddCharset UTF-8 .html .htm .css .js .php .json .xml .txt' >> /etc/apache2/apache2.conf
+
 # Expose port
 EXPOSE 80
 
