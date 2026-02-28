@@ -7,21 +7,14 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CKEditor 5 - 本地文件（CDN 无法访问时使用） -->
+    <!-- CKEditor 5 - 本地文件 -->
     <script src="ckeditor5.js"></script>
-    <!-- 代码高亮 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
     <style>
         .ck-editor__editable { min-height: 500px; }
+        /* 字体设置确保中文显示 */
+        body, input, select, textarea, button, .ck-editor__editable {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
         /* 代码块样式 */
         .ck-content pre {
             background: #2d3748;
@@ -35,10 +28,6 @@
         .ck-content pre code {
             background: transparent;
             padding: 0;
-        }
-        /* 字体颜色样式 */
-        .ck-content span[style*="color"] {
-            font-weight: inherit;
         }
     </style>
 </head>
@@ -119,7 +108,7 @@
         const token = localStorage.getItem('blog_token');
         if (!token) window.location.href = 'login.html';
 
-        // CKEditor 模块引用（在 DOMContentLoaded 后初始化）
+        // CKEditor 模块引用
         let ClassicEditor, Alignment, AutoImage, BlockQuote, Bold, Code, CodeBlock,
             Essentials, FontBackgroundColor, FontColor, FontFamily, FontSize,
             Heading, Highlight, HorizontalLine, Image, ImageCaption, ImageInsert,
@@ -130,153 +119,80 @@
             TableCaption, TableCellProperties, TableColumnResize, TableProperties,
             TableToolbar, TextTransformation, Underline, WordCount;
 
-        // CKEditor CDN 备选列表（使用稳定的 41.1.0 版本）
-        const CKEDITOR_CDNS = [
-            'https://cdn.ckeditor.com/ckeditor5/41.1.0/ckeditor5.umd.js',
-            'https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5@41.1.0/build/ckeditor.umd.js',
-            'https://unpkg.com/@ckeditor/ckeditor5@41.1.0/build/ckeditor.umd.js'
-        ];
-        
-        // 动态加载 CKEditor 脚本
-        function loadCKEditorScript(url) {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = url;
-                script.onload = () => {
-                    console.log('✅ CKEditor 脚本加载成功:', url);
-                    resolve();
-                };
-                script.onerror = () => {
-                    console.warn('⚠️ CKEditor 脚本加载失败:', url);
-                    reject(new Error('加载失败: ' + url));
-                };
-                document.head.appendChild(script);
-            });
-        }
-        
-        // 尝试所有 CDN 直到成功
-        async function tryLoadCKEditor() {
-            for (let i = 0; i < CKEDITOR_CDNS.length; i++) {
-                const url = CKEDITOR_CDNS[i];
-                console.log(`📦 尝试加载 CKEditor (${i + 1}/${CKEDITOR_CDNS.length}):`, url);
-                try {
-                    await loadCKEditorScript(url);
-                    // 检查全局变量是否可用
-                    if (typeof CKEDITOR !== 'undefined') {
-                        return true;
-                    }
-                } catch (err) {
-                    console.warn(`❌ CDN ${i + 1} 失败，尝试下一个...`);
-                }
-            }
-            throw new Error('所有 CKEditor CDN 加载失败，请检查网络连接');
-        }
-        
         // 从 CKEDITOR 全局变量解构模块
         function loadCKEditorModules() {
-            console.log('📦 开始加载 CKEditor 模块...');
-            console.log('🔍 CKEDITOR 全局变量:', typeof CKEDITOR !== 'undefined' ? '已定义' : '未定义');
-            
             if (typeof CKEDITOR === 'undefined') {
-                throw new Error('CKEDITOR 全局变量未定义，CDN 可能加载失败');
+                throw new Error('CKEDITOR 未定义，请检查 ckeditor5.js 是否正确加载');
             }
             
-            console.log('📋 CKEDITOR 可用属性:', Object.keys(CKEDITOR).slice(0, 20).join(', ') + '...');
-            
-            try {
-                // 使用 Object.assign 风格解构，避免部分失败
-                const modules = CKEDITOR;
-                ClassicEditor = modules.ClassicEditor;
-                Alignment = modules.Alignment;
-                AutoImage = modules.AutoImage;
-                BlockQuote = modules.BlockQuote;
-                Bold = modules.Bold;
-                Code = modules.Code;
-                CodeBlock = modules.CodeBlock;
-                Essentials = modules.Essentials;
-                FontBackgroundColor = modules.FontBackgroundColor;
-                FontColor = modules.FontColor;
-                FontFamily = modules.FontFamily;
-                FontSize = modules.FontSize;
-                Heading = modules.Heading;
-                Highlight = modules.Highlight;
-                HorizontalLine = modules.HorizontalLine;
-                Image = modules.Image;
-                ImageCaption = modules.ImageCaption;
-                ImageInsert = modules.ImageInsert;
-                ImageResize = modules.ImageResize;
-                ImageStyle = modules.ImageStyle;
-                ImageToolbar = modules.ImageToolbar;
-                ImageUpload = modules.ImageUpload;
-                Indent = modules.Indent;
-                IndentBlock = modules.IndentBlock;
-                Italic = modules.Italic;
-                Link = modules.Link;
-                List = modules.List;
-                ListProperties = modules.ListProperties;
-                MediaEmbed = modules.MediaEmbed;
-                Mention = modules.Mention;
-                PageBreak = modules.PageBreak;
-                Paragraph = modules.Paragraph;
-                PasteFromOffice = modules.PasteFromOffice;
-                PictureEditing = modules.PictureEditing;
-                RemoveFormat = modules.RemoveFormat;
-                SourceEditing = modules.SourceEditing;
-                SpecialCharacters = modules.SpecialCharacters;
-                Strikethrough = modules.Strikethrough;
-                Subscript = modules.Subscript;
-                Superscript = modules.Superscript;
-                Table = modules.Table;
-                TableCaption = modules.TableCaption;
-                TableCellProperties = modules.TableCellProperties;
-                TableColumnResize = modules.TableColumnResize;
-                TableProperties = modules.TableProperties;
-                TableToolbar = modules.TableToolbar;
-                TextTransformation = modules.TextTransformation;
-                Underline = modules.Underline;
-                WordCount = modules.WordCount;
-                
-                console.log('✅ CKEditor 模块加载成功');
-                console.log('  - ClassicEditor:', typeof ClassicEditor);
-                console.log('  - CodeBlock:', typeof CodeBlock);
-                console.log('  - ImageUpload:', typeof ImageUpload);
-            } catch (err) {
-                console.error('❌ CKEditor 模块解构失败:', err);
-                throw err;
-            }
+            const modules = CKEDITOR;
+            ClassicEditor = modules.ClassicEditor;
+            Alignment = modules.Alignment;
+            AutoImage = modules.AutoImage;
+            BlockQuote = modules.BlockQuote;
+            Bold = modules.Bold;
+            Code = modules.Code;
+            CodeBlock = modules.CodeBlock;
+            Essentials = modules.Essentials;
+            FontBackgroundColor = modules.FontBackgroundColor;
+            FontColor = modules.FontColor;
+            FontFamily = modules.FontFamily;
+            FontSize = modules.FontSize;
+            Heading = modules.Heading;
+            Highlight = modules.Highlight;
+            HorizontalLine = modules.HorizontalLine;
+            Image = modules.Image;
+            ImageCaption = modules.ImageCaption;
+            ImageInsert = modules.ImageInsert;
+            ImageResize = modules.ImageResize;
+            ImageStyle = modules.ImageStyle;
+            ImageToolbar = modules.ImageToolbar;
+            ImageUpload = modules.ImageUpload;
+            Indent = modules.Indent;
+            IndentBlock = modules.IndentBlock;
+            Italic = modules.Italic;
+            Link = modules.Link;
+            List = modules.List;
+            ListProperties = modules.ListProperties;
+            MediaEmbed = modules.MediaEmbed;
+            Mention = modules.Mention;
+            PageBreak = modules.PageBreak;
+            Paragraph = modules.Paragraph;
+            PasteFromOffice = modules.PasteFromOffice;
+            PictureEditing = modules.PictureEditing;
+            RemoveFormat = modules.RemoveFormat;
+            SourceEditing = modules.SourceEditing;
+            SpecialCharacters = modules.SpecialCharacters;
+            Strikethrough = modules.Strikethrough;
+            Subscript = modules.Subscript;
+            Superscript = modules.Superscript;
+            Table = modules.Table;
+            TableCaption = modules.TableCaption;
+            TableCellProperties = modules.TableCellProperties;
+            TableColumnResize = modules.TableColumnResize;
+            TableProperties = modules.TableProperties;
+            TableToolbar = modules.TableToolbar;
+            TextTransformation = modules.TextTransformation;
+            Underline = modules.Underline;
+            WordCount = modules.WordCount;
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // 显示加载提示
             const editorContainer = document.querySelector('#editor');
             if (editorContainer) {
                 editorContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;"><i class="fas fa-spinner fa-spin"></i> 正在加载编辑器...</div>';
             }
             
-            // 先尝试加载 CKEditor 脚本（如果还没加载）
-            if (typeof CKEDITOR === 'undefined') {
-                try {
-                    await tryLoadCKEditor();
-                } catch (err) {
-                    console.error('❌ CKEditor 加载失败:', err);
-                    if (editorContainer) {
-                        editorContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> 编辑器加载失败，请刷新页面重试<br><small>' + err.message + '</small></div>';
-                    }
-                    alert('编辑器加载失败: ' + err.message);
-                    return;
-                }
-            }
-            
-            // 加载 CKEditor 模块
             try {
                 loadCKEditorModules();
             } catch (err) {
-                console.error('❌ 编辑器模块加载失败:', err);
-                alert('编辑器模块加载失败: ' + err.message + '\n请刷新页面重试');
+                console.error('编辑器模块加载失败:', err);
+                if (editorContainer) {
+                    editorContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> 编辑器加载失败<br><small>' + err.message + '</small></div>';
+                }
                 return;
             }
             
-            // 初始化编辑器
             await initEditor();
             loadCategories();
             const params = new URLSearchParams(window.location.search);
@@ -321,30 +237,15 @@
         }
 
         async function initEditor() {
-            console.log('🚀 开始初始化 CKEditor 编辑器...');
-            
-            // 检查必要的模块
-            if (!ClassicEditor) {
-                console.error('❌ ClassicEditor 未定义');
-                alert('编辑器核心模块加载失败，请刷新页面');
-                return;
-            }
-            
             const editorContainer = document.querySelector('#editor');
-            if (!editorContainer) {
-                console.error('❌ 编辑器容器 #editor 未找到');
-                alert('编辑器容器未找到');
-                return;
-            }
             
             try {
                 editor = await ClassicEditor.create(
                     editorContainer,
                     {
-                        // GPL 许可证密钥（开源项目免费使用）
+                        // GPL 许可证密钥
                         licenseKey: 'GPL',
-                        // 设置编辑器语言为中文
-                        language: 'zh-cn',
+                        // 不设置语言，使用默认英文界面（避免语言包问题）
                         plugins: [
                             Essentials, Paragraph, Heading, Bold, Italic, Underline,
                             Strikethrough, Subscript, Superscript, Code, BlockQuote,
@@ -356,7 +257,7 @@
                             PasteFromOffice, RemoveFormat, SourceEditing, SpecialCharacters,
                             Table, TableCaption, TableCellProperties, TableColumnResize,
                             TableProperties, TableToolbar, TextTransformation, WordCount
-                        ].filter(p => p), // 过滤掉未定义的插件
+                        ].filter(p => p),
                         extraPlugins: [MyUploadAdapterPlugin],
                         toolbar: {
                             items: [
@@ -404,12 +305,10 @@
                         }
                     }
                 );
-                console.log('✅ 编辑器初始化成功，支持：代码块、图片上传、字体颜色');
-                console.log('📝 编辑器实例:', editor);
+                console.log('✅ 编辑器初始化成功');
             } catch (error) {
                 console.error('❌ 编辑器初始化失败:', error);
-                console.error('错误堆栈:', error.stack);
-                alert('编辑器初始化失败：' + error.message + '\n请查看控制台获取详细信息');
+                alert('编辑器初始化失败：' + error.message);
             }
         }
 
