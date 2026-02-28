@@ -33,8 +33,8 @@ cd blog-system
 docker-compose up -d
 
 # 3. 访问博客
-# 博客首页：http://localhost:8080
-# 管理后台：http://localhost:8080/admin
+# 博客首页：http://localhost:8686
+# 管理后台：http://localhost:8686/admin
 # 默认账号：admin / admin123
 ```
 
@@ -46,10 +46,10 @@ git clone https://gitee.com/huqi1203/blog-system.git
 cd blog-system
 
 # 2. 启动 PHP 内置服务器
-php -S localhost:8080
+php -S localhost:8686
 
 # 3. 访问博客
-# http://localhost:8080
+# http://localhost:8686
 ```
 
 ## 📁 项目结构
@@ -141,8 +141,8 @@ blog-system/
 ## 📱 访问地址
 
 部署后访问：
-- 博客首页：`http://你的 IP:8080`
-- 管理后台：`http://你的 IP:8080/admin`
+- 博客首页：`http://你的 IP:8686`
+- 管理后台：`http://你的 IP:8686/admin`
 
 ## 🌍 在其他设备使用
 
@@ -160,20 +160,20 @@ blog-system/
 
 3. 在其他设备浏览器访问：
    ```
-   http://你的IP:8080
+   http://你的IP:8686
    ```
 
 ### 云服务器部署
 
 ```bash
-# 1. 确保服务器防火墙开放 8080 端口
-sudo ufw allow 8080
+# 1. 确保服务器防火墙开放 8686 端口
+sudo ufw allow 8686
 
 # 2. 启动 Docker
 docker-compose up -d
 
 # 3. 访问
-http://服务器公网 IP:8080
+http://服务器公网 IP:8686
 ```
 
 ## 📝 更新日志

@@ -70,8 +70,8 @@ cd blog-system
 docker-compose up -d
 
 # 访问地址
-# 博客首页：http://localhost:8080
-# 管理后台：http://localhost:8080/admin
+# 博客首页：http://localhost:8686
+# 管理后台：http://localhost:8686/admin
 # 默认账号：admin / admin123
 ```
 
@@ -132,8 +132,8 @@ docker-compose up -d
 ## 📱 访问地址
 
 部署后访问：
-- 博客首页：`http://你的IP:8080`
-- 管理后台：`http://你的IP:8080/admin`
+- 博客首页：`http://你的IP:8686`
+- 管理后台：`http://你的IP:8686/admin`
 
 ## 📝 待完善功能
 
