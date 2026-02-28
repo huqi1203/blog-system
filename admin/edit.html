@@ -5,96 +5,261 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>编辑文章 - 博客系统</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CKEditor 5 - 本地文件 -->
-    <script src="ckeditor5.js"></script>
     <style>
-        .ck-editor__editable { min-height: 500px; }
-        /* 字体设置确保中文显示 */
-        body, input, select, textarea, button, .ck-editor__editable {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-        }
-        /* 代码块样式 */
-        .ck-content pre {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 1em;
-            border-radius: 4px;
-            font-family: 'Fira Code', 'Consolas', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-        }
-        .ck-content pre code {
-            background: transparent;
+        * {
+            margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 256px;
+            background: #1f2937;
+            color: white;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid #374151;
+        }
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar-nav {
+            padding: 16px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .sidebar-nav a {
+            display: block;
+            padding: 12px 16px;
+            color: #d1d5db;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        .sidebar-nav a:hover {
+            background: #374151;
+        }
+        .sidebar-nav a.active {
+            background: #2563eb;
+        }
+        .sidebar-nav a.active:hover {
+            background: #1d4ed8;
+        }
+        .logout-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(220, 38, 38, 0.8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #374151;
+        }
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+        /* Main */
+        .main {
+            flex: 1;
+            overflow: auto;
+        }
+        .header {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .header a {
+            color: #4b5563;
+            text-decoration: none;
+        }
+        .header a:hover {
+            color: #2563eb;
+        }
+        .content {
+            padding: 32px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            max-width: 1200px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .editor-container {
+            margin-bottom: 24px;
+        }
+        .editor-container label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        #content {
+            width: 100%;
+            min-height: 500px;
+            padding: 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+            resize: vertical;
+        }
+        #content:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+        .btn-cancel {
+            padding: 12px 24px;
+            color: #4b5563;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-cancel:hover {
+            color: #1f2937;
+        }
+        .btn-save {
+            padding: 12px 32px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-save:hover {
+            background: #1d4ed8;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="flex h-screen">
+<body>
+    <div class="container">
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-800 text-white flex-shrink-0 flex flex-col h-screen">
-            <div class="p-6 border-b border-gray-700">
-                <h1 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-cog"></i> 管理后台
-                </h1>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>⚙️ 管理后台</h1>
             </div>
-            <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
-                <a href="index.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
-                    <i class="fas fa-tachometer-alt"></i> 仪表盘
-                </a>
-                <a href="articles.html" class="block px-4 py-3 bg-blue-600 rounded-lg flex items-center gap-3">
-                    <i class="fas fa-file-alt"></i> 文章管理
-                </a>
-                <a href="comments.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
-                    <i class="fas fa-comments"></i> 评论管理
-                </a>
-                <a href="categories.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
-                    <i class="fas fa-folder"></i> 分类管理
-                </a>
-                <a href="settings.html" class="block px-4 py-3 hover:bg-gray-700 rounded-lg flex items-center gap-3 transition">
-                    <i class="fas fa-cog"></i> 系统设置
-                </a>
-                <div class="pt-4 mt-4 border-t border-gray-700">
-                    <button onclick="logout()" class="w-full px-4 py-3 bg-red-600/80 hover:bg-red-600 rounded-lg flex items-center gap-3 transition">
-                        <i class="fas fa-sign-out-alt"></i> 退出登录
-                    </button>
-                </div>
+            <nav class="sidebar-nav">
+                <a href="index.html">📊 仪表盘</a>
+                <a href="articles.html" class="active">📝 文章管理</a>
+                <a href="comments.html">💬 评论管理</a>
+                <a href="categories.html">📁 分类管理</a>
+                <a href="settings.html">⚙️ 系统设置</a>
+                <button onclick="logout()" class="logout-btn">🚪 退出登录</button>
             </nav>
         </aside>
-        <main class="flex-1 overflow-auto">
-            <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-800">编辑文章</h2>
-                <a href="articles.html" class="text-gray-600 hover:text-blue-600"><i class="fas fa-arrow-left"></i> 返回列表</a>
+
+        <!-- Main -->
+        <main class="main">
+            <header class="header">
+                <h2>编辑文章</h2>
+                <a href="articles.html">← 返回列表</a>
             </header>
-            <div class="p-8">
-                <div class="bg-white rounded-2xl shadow-md p-6 max-w-6xl">
-                    <div class="space-y-4 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">文章标题</label>
-                            <input type="text" id="title" placeholder="请输入文章标题" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg">
+            <div class="content">
+                <div class="card">
+                    <div class="form-group">
+                        <label>文章标题</label>
+                        <input type="text" id="title" placeholder="请输入文章标题">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>分类</label>
+                            <select id="category">
+                                <option value="">选择分类</option>
+                            </select>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">分类</label>
-                                <select id="category" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">选择分类</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">标签（用逗号分隔）</label>
-                                <input type="text" id="tags" placeholder="技术，教程，生活" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
+                        <div class="form-group">
+                            <label>标签（用逗号分隔）</label>
+                            <input type="text" id="tags" placeholder="技术，教程，生活">
                         </div>
                     </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">文章内容</label>
-                        <div id="editor"></div>
+                    <div class="editor-container">
+                        <label>文章内容（支持 HTML）</label>
+                        <textarea id="content" placeholder="请输入文章内容，支持 HTML 格式..."></textarea>
                     </div>
-                    <div class="flex justify-end gap-4">
-                        <a href="articles.html" class="px-6 py-3 text-gray-600 hover:text-gray-800 transition">取消</a>
-                        <button onclick="saveArticle()" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"><i class="fas fa-save"></i> 保存文章</button>
+                    <div class="actions">
+                        <a href="articles.html" class="btn-cancel">取消</a>
+                        <button onclick="saveArticle()" class="btn-save">💾 保存文章</button>
                     </div>
                 </div>
             </div>
@@ -103,265 +268,85 @@
 
     <script>
         const API_URL = '../api.php';
-        let editor;
         let articleId = null;
         const token = localStorage.getItem('blog_token');
         if (!token) window.location.href = 'login.html';
 
-        // CKEditor 模块引用
-        let ClassicEditor, Alignment, AutoImage, BlockQuote, Bold, Code, CodeBlock,
-            Essentials, FontBackgroundColor, FontColor, FontFamily, FontSize,
-            Heading, Highlight, HorizontalLine, Image, ImageCaption, ImageInsert,
-            ImageResize, ImageStyle, ImageToolbar, ImageUpload, Indent, IndentBlock,
-            Italic, Link, List, ListProperties, MediaEmbed, Mention, PageBreak,
-            Paragraph, PasteFromOffice, PictureEditing, RemoveFormat, SourceEditing,
-            SpecialCharacters, Strikethrough, Subscript, Superscript, Table,
-            TableCaption, TableCellProperties, TableColumnResize, TableProperties,
-            TableToolbar, TextTransformation, Underline, WordCount;
-
-        // 从 CKEDITOR 全局变量解构模块
-        function loadCKEditorModules() {
-            if (typeof CKEDITOR === 'undefined') {
-                throw new Error('CKEDITOR 未定义，请检查 ckeditor5.js 是否正确加载');
-            }
-            
-            const modules = CKEDITOR;
-            ClassicEditor = modules.ClassicEditor;
-            Alignment = modules.Alignment;
-            AutoImage = modules.AutoImage;
-            BlockQuote = modules.BlockQuote;
-            Bold = modules.Bold;
-            Code = modules.Code;
-            CodeBlock = modules.CodeBlock;
-            Essentials = modules.Essentials;
-            FontBackgroundColor = modules.FontBackgroundColor;
-            FontColor = modules.FontColor;
-            FontFamily = modules.FontFamily;
-            FontSize = modules.FontSize;
-            Heading = modules.Heading;
-            Highlight = modules.Highlight;
-            HorizontalLine = modules.HorizontalLine;
-            Image = modules.Image;
-            ImageCaption = modules.ImageCaption;
-            ImageInsert = modules.ImageInsert;
-            ImageResize = modules.ImageResize;
-            ImageStyle = modules.ImageStyle;
-            ImageToolbar = modules.ImageToolbar;
-            ImageUpload = modules.ImageUpload;
-            Indent = modules.Indent;
-            IndentBlock = modules.IndentBlock;
-            Italic = modules.Italic;
-            Link = modules.Link;
-            List = modules.List;
-            ListProperties = modules.ListProperties;
-            MediaEmbed = modules.MediaEmbed;
-            Mention = modules.Mention;
-            PageBreak = modules.PageBreak;
-            Paragraph = modules.Paragraph;
-            PasteFromOffice = modules.PasteFromOffice;
-            PictureEditing = modules.PictureEditing;
-            RemoveFormat = modules.RemoveFormat;
-            SourceEditing = modules.SourceEditing;
-            SpecialCharacters = modules.SpecialCharacters;
-            Strikethrough = modules.Strikethrough;
-            Subscript = modules.Subscript;
-            Superscript = modules.Superscript;
-            Table = modules.Table;
-            TableCaption = modules.TableCaption;
-            TableCellProperties = modules.TableCellProperties;
-            TableColumnResize = modules.TableColumnResize;
-            TableProperties = modules.TableProperties;
-            TableToolbar = modules.TableToolbar;
-            TextTransformation = modules.TextTransformation;
-            Underline = modules.Underline;
-            WordCount = modules.WordCount;
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const editorContainer = document.querySelector('#editor');
-            if (editorContainer) {
-                editorContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;"><i class="fas fa-spinner fa-spin"></i> 正在加载编辑器...</div>';
-            }
-            
-            try {
-                loadCKEditorModules();
-            } catch (err) {
-                console.error('编辑器模块加载失败:', err);
-                if (editorContainer) {
-                    editorContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> 编辑器加载失败<br><small>' + err.message + '</small></div>';
-                }
-                return;
-            }
-            
-            await initEditor();
+        document.addEventListener('DOMContentLoaded', () => {
             loadCategories();
             const params = new URLSearchParams(window.location.search);
             articleId = params.get('id');
             if (articleId) loadArticle(articleId);
         });
 
-        class MyUploadAdapter {
-            constructor(loader) {
-                this.loader = loader;
-            }
-            upload() {
-                return this.loader.file.then(file => {
-                    return new Promise((resolve, reject) => {
-                        const formData = new FormData();
-                        formData.append('image', file);
-                        fetch(`${API_URL}?action=upload_image`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: formData
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.code === 200 && data.data && data.data.url) {
-                                resolve({ default: data.data.url });
-                            } else {
-                                reject(data.msg || '上传失败');
-                            }
-                        })
-                        .catch(err => reject(err.message));
-                    });
-                });
-            }
-        }
-
-        function MyUploadAdapterPlugin(editor) {
-            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-                return new MyUploadAdapter(loader);
-            };
-        }
-
-        async function initEditor() {
-            const editorContainer = document.querySelector('#editor');
-            
-            try {
-                editor = await ClassicEditor.create(
-                    editorContainer,
-                    {
-                        // GPL 许可证密钥
-                        licenseKey: 'GPL',
-                        // 不设置语言，使用默认英文界面（避免语言包问题）
-                        plugins: [
-                            Essentials, Paragraph, Heading, Bold, Italic, Underline,
-                            Strikethrough, Subscript, Superscript, Code, BlockQuote,
-                            CodeBlock, Alignment, FontSize, FontFamily, FontColor,
-                            FontBackgroundColor, Highlight, HorizontalLine, Image,
-                            ImageCaption, ImageInsert, ImageResize, ImageStyle,
-                            ImageToolbar, ImageUpload, AutoImage, PictureEditing, Indent, IndentBlock,
-                            Link, List, ListProperties, MediaEmbed, PageBreak,
-                            PasteFromOffice, RemoveFormat, SourceEditing, SpecialCharacters,
-                            Table, TableCaption, TableCellProperties, TableColumnResize,
-                            TableProperties, TableToolbar, TextTransformation, WordCount
-                        ].filter(p => p),
-                        extraPlugins: [MyUploadAdapterPlugin],
-                        toolbar: {
-                            items: [
-                                'heading', '|',
-                                'bold', 'italic', 'underline', 'strikethrough', 'code', '|',
-                                'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
-                                'bulletedList', 'numberedList', 'outdent', 'indent', '|',
-                                'alignment', '|',
-                                'blockQuote', 'codeBlock', '|',
-                                'link', 'insertImage', 'mediaEmbed', '|',
-                                'insertTable', 'horizontalLine', 'pageBreak', '|',
-                                'undo', 'redo', '|',
-                                'sourceEditing'
-                            ],
-                            shouldNotGroupWhenFull: false
-                        },
-                        image: {
-                            toolbar: [
-                                'imageTextAlternative', 'toggleImageCaption', '|',
-                                'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
-                                'linkImage'
-                            ]
-                        },
-                        table: {
-                            contentToolbar: [
-                                'tableColumn', 'tableRow', 'mergeTableCells',
-                                'tableProperties', 'tableCellProperties'
-                            ]
-                        },
-                        codeBlock: {
-                            languages: [
-                                { language: 'plaintext', label: 'Plain text' },
-                                { language: 'javascript', label: 'JavaScript' },
-                                { language: 'python', label: 'Python' },
-                                { language: 'php', label: 'PHP' },
-                                { language: 'java', label: 'Java' },
-                                { language: 'cpp', label: 'C++' },
-                                { language: 'go', label: 'Go' },
-                                { language: 'bash', label: 'Bash' },
-                                { language: 'html', label: 'HTML' },
-                                { language: 'css', label: 'CSS' },
-                                { language: 'sql', label: 'SQL' },
-                                { language: 'json', label: 'JSON' }
-                            ]
-                        }
-                    }
-                );
-                console.log('✅ 编辑器初始化成功');
-            } catch (error) {
-                console.error('❌ 编辑器初始化失败:', error);
-                alert('编辑器初始化失败：' + error.message);
-            }
-        }
-
         async function loadCategories() {
-            const res = await fetch(`${API_URL}?action=get_categories`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (data.code === 200) {
-                const select = document.getElementById('category');
-                data.data.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.id;
-                    option.textContent = `${cat.icon || '📁'} ${cat.name}`;
-                    select.appendChild(option);
+            try {
+                const res = await fetch(`${API_URL}?action=get_categories`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
+                const data = await res.json();
+                if (data.code === 200) {
+                    const select = document.getElementById('category');
+                    data.data.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = `${cat.icon || '📁'} ${cat.name}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (err) {
+                console.error('加载分类失败:', err);
             }
         }
 
         async function loadArticle(id) {
-            const res = await fetch(`${API_URL}?action=get_article&id=${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (data.code === 200) {
-                document.getElementById('title').value = data.data.title;
-                document.getElementById('category').value = data.data.category || '';
-                document.getElementById('tags').value = (data.data.tags || []).join(',');
-                editor.setData(data.data.content || '');
+            try {
+                const res = await fetch(`${API_URL}?action=get_article&id=${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.code === 200) {
+                    document.getElementById('title').value = data.data.title;
+                    document.getElementById('category').value = data.data.category || '';
+                    document.getElementById('tags').value = (data.data.tags || []).join(',');
+                    document.getElementById('content').value = data.data.content || '';
+                } else {
+                    alert('加载文章失败: ' + (data.msg || '未知错误'));
+                }
+            } catch (err) {
+                console.error('加载文章失败:', err);
+                alert('加载文章失败');
             }
         }
 
         async function saveArticle() {
             const title = document.getElementById('title').value.trim();
-            const content = editor.getData();
+            const content = document.getElementById('content').value;
             const category = document.getElementById('category').value;
             const tags = document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t);
+            
             if (!title) { alert('请输入文章标题'); return; }
             if (!content) { alert('请输入文章内容'); return; }
-            const res = await fetch(`${API_URL}?action=save_article`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ id: articleId, title, content, category, tags })
-            });
-            const data = await res.json();
-            if (data.code === 200) {
-                alert('保存成功');
-                window.location.href = 'articles.html';
-            } else {
-                alert(data.msg || '保存失败');
+            
+            try {
+                const res = await fetch(`${API_URL}?action=save_article`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ id: articleId, title, content, category, tags })
+                });
+                const data = await res.json();
+                if (data.code === 200) {
+                    alert('保存成功');
+                    window.location.href = 'articles.html';
+                } else {
+                    alert(data.msg || '保存失败');
+                }
+            } catch (err) {
+                console.error('保存文章失败:', err);
+                alert('保存失败');
             }
         }
 
