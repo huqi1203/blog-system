@@ -6,10 +6,39 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CKEditor 5 from CDN -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+    <!-- CKEditor 5 Superbuild (包含所有插件) -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/ckeditor5.umd.js"></script>
+    <!-- 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
     <style>
         .ck-editor__editable { min-height: 500px; }
+        /* 代码块样式 */
+        .ck-content pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1em;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        .ck-content pre code {
+            background: transparent;
+            padding: 0;
+        }
+        /* 字体颜色样式 */
+        .ck-content span[style*="color"] {
+            font-weight: inherit;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -90,18 +119,25 @@
         if (!token) window.location.href = 'login.html';
 
         // 检查 CKEditor 是否加载成功
-        console.log('CKEditor loaded:', typeof ClassicEditor);
-        if (typeof ClassicEditor === 'undefined') {
-            alert('CKEditor 加载失败，请检查网络或刷新页面');
-        } else {
-            document.addEventListener('DOMContentLoaded', () => {
-                initEditor();
-                loadCategories();
-                const params = new URLSearchParams(window.location.search);
-                articleId = params.get('id');
-                if (articleId) loadArticle(articleId);
-            });
-        }
+        const { ClassicEditor, Alignment, BlockQuote, Bold, Code, CodeBlock,
+                Essentials, FontBackgroundColor, FontColor, FontFamily, FontSize,
+                Heading, Highlight, HorizontalLine, Image, ImageCaption, ImageInsert,
+                ImageResize, ImageStyle, ImageToolbar, ImageUpload, Indent, IndentBlock,
+                Italic, Link, List, ListProperties, MediaEmbed, Mention, PageBreak,
+                Paragraph, PasteFromOffice, PictureEditing, RemoveFormat, SourceEditing,
+                SpecialCharacters, Strikethrough, Subscript, Superscript, Table,
+                TableCaption, TableCellProperties, TableColumnResize, TableProperties,
+                TableToolbar, TextTransformation, Underline, WordCount } = CKEditor;
+
+        console.log('CKEditor 5 Superbuild loaded');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initEditor();
+            loadCategories();
+            const params = new URLSearchParams(window.location.search);
+            articleId = params.get('id');
+            if (articleId) loadArticle(articleId);
+        });
 
         class MyUploadAdapter {
             constructor(loader) {
@@ -144,15 +180,47 @@
                 editor = await ClassicEditor.create(
                     document.querySelector('#editor'),
                     {
-                        extraPlugins: [MyUploadAdapterPlugin],
-                        toolbar: [
-                            'heading', '|',
-                            'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
-                            'blockQuote', 'codeBlock', '|',
-                            'imageUpload', '|',
-                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
-                            'undo', 'redo'
+                        plugins: [
+                            Essentials, Paragraph, Heading, Bold, Italic, Underline,
+                            Strikethrough, Subscript, Superscript, Code, BlockQuote,
+                            CodeBlock, Alignment, FontSize, FontFamily, FontColor,
+                            FontBackgroundColor, Highlight, HorizontalLine, Image,
+                            ImageCaption, ImageInsert, ImageResize, ImageStyle,
+                            ImageToolbar, ImageUpload, PictureEditing, Indent, IndentBlock,
+                            Link, List, ListProperties, MediaEmbed, PageBreak,
+                            PasteFromOffice, RemoveFormat, SourceEditing, SpecialCharacters,
+                            Table, TableCaption, TableCellProperties, TableColumnResize,
+                            TableProperties, TableToolbar, TextTransformation, WordCount
                         ],
+                        extraPlugins: [MyUploadAdapterPlugin],
+                        toolbar: {
+                            items: [
+                                'heading', '|',
+                                'bold', 'italic', 'underline', 'strikethrough', 'code', '|',
+                                'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                                'bulletedList', 'numberedList', 'outdent', 'indent', '|',
+                                'alignment', '|',
+                                'blockQuote', 'codeBlock', '|',
+                                'link', 'insertImage', 'mediaEmbed', '|',
+                                'insertTable', 'horizontalLine', 'pageBreak', '|',
+                                'undo', 'redo', '|',
+                                'sourceEditing'
+                            ],
+                            shouldNotGroupWhenFull: false
+                        },
+                        image: {
+                            toolbar: [
+                                'imageTextAlternative', 'toggleImageCaption', '|',
+                                'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
+                                'linkImage'
+                            ]
+                        },
+                        table: {
+                            contentToolbar: [
+                                'tableColumn', 'tableRow', 'mergeTableCells',
+                                'tableProperties', 'tableCellProperties'
+                            ]
+                        },
                         codeBlock: {
                             languages: [
                                 { language: 'plaintext', label: 'Plain text' },
@@ -162,12 +230,16 @@
                                 { language: 'java', label: 'Java' },
                                 { language: 'cpp', label: 'C++' },
                                 { language: 'go', label: 'Go' },
-                                { language: 'bash', label: 'Bash' }
+                                { language: 'bash', label: 'Bash' },
+                                { language: 'html', label: 'HTML' },
+                                { language: 'css', label: 'CSS' },
+                                { language: 'sql', label: 'SQL' },
+                                { language: 'json', label: 'JSON' }
                             ]
                         }
                     }
                 );
-                console.log('✅ 编辑器初始化成功');
+                console.log('✅ 编辑器初始化成功，支持：代码块、图片上传、字体颜色');
             } catch (error) {
                 console.error('❌ 编辑器初始化失败:', error);
                 alert('编辑器初始化失败：' + error.message);
