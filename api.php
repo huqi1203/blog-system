@@ -15,8 +15,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Configuration
 $baseDir = __DIR__.'/data/';
-$jwtSecret = 'blog-system-secret-key-2024'; // Change in production
+$jwtSecret = getenv('JWT_SECRET') ?: 'blog-system-' . md5(__DIR__ . php_uname()); // Use env var or unique default
 $tokenExpiry = 86400 * 7; // 7 days
+
+// XSS Prevention - Sanitize HTML content
+function sanitizeHtml($html) {
+    // Allow only safe tags
+    $allowedTags = '<p><br><strong><b><em><i><u><a><img><ul><ol><li><h1><h2><h3><h4><h5><h6><blockquote><pre><code><span><div><table><thead><tbody><tr><th><td>';
+    $html = strip_tags($html, $allowedTags);
+    // Remove dangerous attributes
+    $html = preg_replace('/on\w+="[^"]*"/i', '', $html);
+    $html = preg_replace('/javascript:/i', '', $html);
+    return htmlspecialchars($html, ENT_QUOTES, 'UTF-8', false);
+}
 
 // Ensure data directory exists
 if (!is_dir($baseDir)) {
@@ -343,6 +354,19 @@ try {
         case 'save_article':
             requireAdmin();
             $art = $input;
+            
+            // XSS prevention - sanitize content
+            if (isset($art['content'])) {
+                // Use HTMLPurifier-like approach: allow safe tags only
+                // For simplicity, we trust CKEditor output but remove dangerous patterns
+                $art['content'] = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $art['content']);
+                $art['content'] = preg_replace('/on\w+="[^"]*"/i', '', $art['content']);
+                $art['content'] = preg_replace('/javascript:/i', '', $art['content']);
+            }
+            if (isset($art['title'])) {
+                $art['title'] = htmlspecialchars($art['title'], ENT_QUOTES, 'UTF-8');
+            }
+            
             $articles = getJson($files['articles']);
             
             if (!empty($art['id'])) {

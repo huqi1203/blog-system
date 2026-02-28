@@ -1,0 +1,33 @@
+# Data files
+data/
+uploads/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Monitor related files (not part of blog system)
+monitor-*.html
+monitor-*.sh
+monitor-*.py
+concurrency-api.py
+concurrent-server.py
+multi_model_dispatcher.py
+MODEL-ROUTING.md
+monitor-panel/
+
+# Test files
+test_*.html
+
+# Temporary files
+*.tmp
+*.log
+*.swp
+*~
+
+# OpenClaw internal
+.openclaw/
