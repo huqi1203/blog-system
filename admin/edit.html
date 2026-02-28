@@ -6,8 +6,7 @@
     <title>编辑文章 - 博客系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CKEditor 5 - 使用 jsdelivr CDN（更稳定） -->
-    <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5@44.3.0/build/ckeditor.umd.js"></script>
+    <!-- CKEditor 5 - 动态加载（支持备用 CDN） -->
     <!-- 代码高亮 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -129,6 +128,48 @@
             TableCaption, TableCellProperties, TableColumnResize, TableProperties,
             TableToolbar, TextTransformation, Underline, WordCount;
 
+        // CKEditor CDN 备选列表
+        const CKEDITOR_CDNS = [
+            'https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5@44.3.0/build/ckeditor.umd.js',
+            'https://unpkg.com/@ckeditor/ckeditor5@44.3.0/build/ckeditor.umd.js',
+            'https://cdn.ckeditor.com/ckeditor5/44.3.0/ckeditor5.umd.js'
+        ];
+        
+        // 动态加载 CKEditor 脚本
+        function loadCKEditorScript(url) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = () => {
+                    console.log('✅ CKEditor 脚本加载成功:', url);
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.warn('⚠️ CKEditor 脚本加载失败:', url);
+                    reject(new Error('加载失败: ' + url));
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
+        // 尝试所有 CDN 直到成功
+        async function tryLoadCKEditor() {
+            for (let i = 0; i < CKEDITOR_CDNS.length; i++) {
+                const url = CKEDITOR_CDNS[i];
+                console.log(`📦 尝试加载 CKEditor (${i + 1}/${CKEDITOR_CDNS.length}):`, url);
+                try {
+                    await loadCKEditorScript(url);
+                    // 检查全局变量是否可用
+                    if (typeof CKEDITOR !== 'undefined') {
+                        return true;
+                    }
+                } catch (err) {
+                    console.warn(`❌ CDN ${i + 1} 失败，尝试下一个...`);
+                }
+            }
+            throw new Error('所有 CKEditor CDN 加载失败，请检查网络连接');
+        }
+        
         // 从 CKEDITOR 全局变量解构模块
         function loadCKEditorModules() {
             console.log('📦 开始加载 CKEditor 模块...');
@@ -203,18 +244,38 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // 先加载 CKEditor 模块
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 显示加载提示
+            const editorContainer = document.querySelector('#editor');
+            if (editorContainer) {
+                editorContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;"><i class="fas fa-spinner fa-spin"></i> 正在加载编辑器...</div>';
+            }
+            
+            // 先尝试加载 CKEditor 脚本（如果还没加载）
+            if (typeof CKEDITOR === 'undefined') {
+                try {
+                    await tryLoadCKEditor();
+                } catch (err) {
+                    console.error('❌ CKEditor 加载失败:', err);
+                    if (editorContainer) {
+                        editorContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> 编辑器加载失败，请刷新页面重试<br><small>' + err.message + '</small></div>';
+                    }
+                    alert('编辑器加载失败: ' + err.message);
+                    return;
+                }
+            }
+            
+            // 加载 CKEditor 模块
             try {
                 loadCKEditorModules();
             } catch (err) {
                 console.error('❌ 编辑器模块加载失败:', err);
-                alert('编辑器加载失败: ' + err.message + '\n请刷新页面重试');
+                alert('编辑器模块加载失败: ' + err.message + '\n请刷新页面重试');
                 return;
             }
             
             // 初始化编辑器
-            initEditor();
+            await initEditor();
             loadCategories();
             const params = new URLSearchParams(window.location.search);
             articleId = params.get('id');
